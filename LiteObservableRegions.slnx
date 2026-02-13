@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/LiteObservableRegions.WPF.Test/LiteObservableRegions.WPF.Test.csproj" />
+  <Project Path="src/LiteObservableRegions.WPF/LiteObservableRegions.WPF.csproj" />
+</Solution>
