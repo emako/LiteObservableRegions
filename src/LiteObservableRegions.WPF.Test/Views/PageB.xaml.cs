@@ -1,13 +1,8 @@
-using LiteObservableRegions.Abstractions;
 using System.Windows.Controls;
 
 namespace LiteObservableRegions.WPF.Test.Views;
 
-/// <summary>
-/// Sample view B used for testing region navigation.
-/// 测试用示例视图 B，用于验证区域导航。
-/// </summary>
-public partial class PageB : UserControl, INavigationAware
+public partial class PageB : UserControl, LiteObservableRegions.INavigationAware
 {
     public string Datetime { get; set; }
 
@@ -18,13 +13,11 @@ public partial class PageB : UserControl, INavigationAware
         InitializeComponent();
     }
 
-    /// <inheritdoc />
-    public void OnNavigatedFrom(RegionNavigationEntry entry)
+    public void OnNavigatedFrom(LiteObservableRegions.NavigationContext context)
     {
     }
 
-    /// <inheritdoc />
-    public void OnNavigatedTo(RegionNavigationEntry entry)
+    public void OnNavigatedTo(LiteObservableRegions.NavigationContext context)
     {
     }
 }
