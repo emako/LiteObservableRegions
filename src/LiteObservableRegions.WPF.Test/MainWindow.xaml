@@ -56,6 +56,6 @@
                 Click="BtnForward_Click"
                 Content="GoForward" />
         </StackPanel>
-        <ContentControl Grid.Row="1" r:ObservableRegion.RegionName="MainGridRegion" />
+        <ContentControl Grid.Row="1" r:ObservableRegion.RegionName="region://MainGridRegion" />
     </Grid>
 </Window>

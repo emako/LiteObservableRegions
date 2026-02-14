@@ -1,5 +1,3 @@
-using LiteObservableRegions;
-using System;
 using System.Windows;
 
 namespace LiteObservableRegions.WPF.Test;
