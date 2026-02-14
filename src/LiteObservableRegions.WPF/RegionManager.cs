@@ -177,6 +177,8 @@ public sealed class RegionManager : IRegionManager
         }
         if (clearForward)
             state.ForwardStack.Clear();
+        if (!pushBack)
+            state.BackStack.Clear();
 
         state.CurrentEntry = new NavigationEntry(uri, view, context);
         ObservableRegion.SetHostContent(state.Host, view);
