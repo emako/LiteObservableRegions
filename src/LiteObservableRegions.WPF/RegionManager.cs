@@ -1,23 +1,9 @@
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Windows;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LiteObservableRegions;
-
-internal sealed class NavigationEntry
-{
-    public Uri Uri { get; }
-    public WeakReference ViewRef { get; }
-    public NavigationContext Context { get; }
-
-    public NavigationEntry(Uri uri, object view, NavigationContext context)
-    {
-        Uri = uri;
-        ViewRef = new WeakReference(view);
-        Context = context;
-    }
-}
 
 internal sealed class RegionState
 {
@@ -43,8 +29,8 @@ public sealed class RegionManager : IRegionManager
 {
     private readonly IServiceProvider _rootProvider;
     private readonly IRegionViewRegistry _registry;
-    private readonly Dictionary<string, RegionState> _regions = new Dictionary<string, RegionState>(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, object> _singletonCache = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, RegionState> _regions = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, object> _singletonCache = new(StringComparer.OrdinalIgnoreCase);
 
     public RegionManager(IServiceProvider rootProvider, IRegionViewRegistry registry)
     {
@@ -57,25 +43,22 @@ public sealed class RegionManager : IRegionManager
         if (string.IsNullOrEmpty(regionName)) throw new ArgumentNullException(nameof(regionName));
         if (host == null) throw new ArgumentNullException(nameof(host));
 
-        DependencyObject depObj = host as DependencyObject;
-        if (depObj == null)
+        if (host is not DependencyObject depObj)
             throw new ArgumentException("Region host must be a DependencyObject.", nameof(host));
 
-        RegionState existing;
-        if (_regions.TryGetValue(regionName, out existing))
+        if (_regions.TryGetValue(regionName, out RegionState existing))
         {
             existing.DisposeScope();
         }
 
-        RegionState state = new RegionState(depObj);
+        RegionState state = new(depObj);
         _regions[regionName] = state;
 
         if (depObj is FrameworkElement fe)
         {
             fe.Unloaded += (s, e) =>
             {
-                RegionState st;
-                if (_regions.TryGetValue(regionName, out st) && st.Host == depObj)
+                if (_regions.TryGetValue(regionName, out RegionState st) && st.Host == depObj)
                 {
                     _regions.Remove(regionName);
                     st.DisposeScope();
@@ -96,8 +79,7 @@ public sealed class RegionManager : IRegionManager
 
     public void GoBack(string regionName)
     {
-        RegionState state;
-        if (!_regions.TryGetValue(regionName, out state))
+        if (!_regions.TryGetValue(regionName, out RegionState state))
             return;
         if (state.BackStack.Count == 0)
             return;
@@ -116,8 +98,7 @@ public sealed class RegionManager : IRegionManager
 
     public void GoForward(string regionName)
     {
-        RegionState state;
-        if (!_regions.TryGetValue(regionName, out state))
+        if (!_regions.TryGetValue(regionName, out RegionState state))
             return;
         if (state.ForwardStack.Count == 0)
             return;
@@ -136,38 +117,74 @@ public sealed class RegionManager : IRegionManager
 
     public bool CanGoBack(string regionName)
     {
-        RegionState state;
-        return _regions.TryGetValue(regionName, out state) && state.BackStack.Count > 0;
+        return _regions.TryGetValue(regionName, out RegionState state) && state.BackStack.Count > 0;
     }
 
     public bool CanGoForward(string regionName)
     {
-        RegionState state;
-        return _regions.TryGetValue(regionName, out state) && state.ForwardStack.Count > 0;
+        return _regions.TryGetValue(regionName, out RegionState state) && state.ForwardStack.Count > 0;
+    }
+
+    public IRegion GetRegion(string regionName)
+    {
+        if (string.IsNullOrEmpty(regionName))
+            return null;
+        if (!_regions.TryGetValue(regionName, out RegionState state))
+            return null;
+        return new RegionView(this, regionName);
+    }
+
+    private sealed class RegionView : IRegion
+    {
+        private readonly RegionManager _manager;
+        private readonly string _name;
+
+        internal RegionView(RegionManager manager, string name)
+        {
+            _manager = manager;
+            _name = name;
+        }
+
+        public string Name => _name;
+
+        public object Host
+        {
+            get
+            {
+                RegionState state;
+                return _manager._regions.TryGetValue(_name, out state) ? state.Host : null;
+            }
+        }
+
+        public Uri CurrentUri
+        {
+            get
+            {
+                if (!_manager._regions.TryGetValue(_name, out RegionState state) || state.CurrentEntry == null)
+                    return null;
+                return state.CurrentEntry.Uri;
+            }
+        }
+
+        public bool CanGoBack => _manager.CanGoBack(_name);
+        public bool CanGoForward => _manager.CanGoForward(_name);
     }
 
     private void PerformNavigation(Uri uri, bool pushBack, bool clearForward)
     {
         if (uri == null)
             throw new ArgumentNullException(nameof(uri));
-        string regionName;
-        string targetName;
-        IReadOnlyDictionary<string, string> parameters;
-        if (!RegionUriParser.TryParse(uri, out regionName, out targetName, out parameters))
+        if (!RegionUriParser.TryParse(uri, out string regionName, out string targetName, out IReadOnlyDictionary<string, string> parameters))
             throw new ArgumentException("Invalid region URI. Expected format: region://RegionName/TargetName?query", nameof(uri));
 
-        RegionState state;
-        if (!_regions.TryGetValue(regionName, out state))
+        if (!_regions.TryGetValue(regionName, out RegionState state))
             throw new InvalidOperationException($"Region '{regionName}' is not registered.");
 
         NavigationMode mode = pushBack ? NavigationMode.Push : NavigationMode.Replace;
-        Uri fromUri = state.CurrentEntry != null ? state.CurrentEntry.Uri : null;
-        NavigationContext context = new NavigationContext(fromUri, uri, parameters, mode, regionName, targetName);
+        Uri fromUri = state.CurrentEntry?.Uri;
+        NavigationContext context = new(fromUri, uri, parameters, mode, regionName, targetName);
 
-        object view = ResolveView(regionName, targetName, parameters, context);
-        if (view == null)
-            throw new InvalidOperationException($"No view registered for target '{targetName}'.");
-
+        object view = ResolveView(regionName, targetName, parameters, context) ?? throw new InvalidOperationException($"No view registered for target '{targetName}'.");
         if (state.CurrentEntry != null)
         {
             object currentView = GetViewFromEntry(regionName, state, state.CurrentEntry);
@@ -206,8 +223,7 @@ public sealed class RegionManager : IRegionManager
         if (lifetime == ServiceLifetime.Singleton)
         {
             string key = regionName + "|" + targetName;
-            object cached;
-            if (_singletonCache.TryGetValue(key, out cached))
+            if (_singletonCache.TryGetValue(key, out object cached))
                 return cached;
             object instance = _rootProvider.GetService(entry.ViewType);
             if (instance != null)
@@ -217,11 +233,9 @@ public sealed class RegionManager : IRegionManager
 
         if (lifetime == ServiceLifetime.Scoped)
         {
-            RegionState state;
-            if (!_regions.TryGetValue(regionName, out state))
+            if (!_regions.TryGetValue(regionName, out RegionState state))
                 return null;
-            if (state.Scope == null)
-                state.Scope = _rootProvider.CreateScope();
+            state.Scope ??= _rootProvider.CreateScope();
             return state.Scope.ServiceProvider.GetService(entry.ViewType);
         }
 
