@@ -8,7 +8,7 @@ public sealed class GetRegionTests
     private static IRegionManager CreateManager()
     {
         IServiceCollection services = new ServiceCollection();
-        services.AddLiteObservableRegions(reg =>
+        services.AddObservableRegions(reg =>
         {
             reg.AddView<FakeView>("GridA", ServiceLifetime.Transient);
             reg.AddView<FakeView>("GridB", ServiceLifetime.Transient);

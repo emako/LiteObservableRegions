@@ -21,9 +21,7 @@ public static class RegionServiceProvider
         if (Current == null)
             throw new InvalidOperationException("RegionServiceProvider.Current has not been set.");
         object service = Current.GetService(typeof(T));
-        if (service == null)
-            throw new InvalidOperationException($"Required service {typeof(T).Name} was not registered.");
-        return (T)service;
+        return service == null ? throw new InvalidOperationException($"Required service {typeof(T).Name} was not registered.") : (T)service;
     }
 
     /// <summary>

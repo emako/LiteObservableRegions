@@ -10,7 +10,7 @@ namespace LiteObservableRegions.WPF.Test;
 /// </summary>
 public partial class App : Application
 {
-    public static IServiceProvider ServiceProvider { get; private set; }
+    public static IServiceProvider ServiceProvider { get; private set; } = null!;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -19,7 +19,7 @@ public partial class App : Application
         IServiceCollection services = new ServiceCollection();
         services.AddSingleton(services);
 
-        services.AddLiteObservableRegions(reg =>
+        services.AddObservableRegions(reg =>
         {
             reg.AddView<PageA>("GridA", ServiceLifetime.Scoped);
             reg.AddView<PageB>("GridB", ServiceLifetime.Scoped);

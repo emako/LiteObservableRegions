@@ -23,7 +23,7 @@ public static class RegionServiceCollectionExtensions
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
-        RegionViewRegistry registry = new RegionViewRegistry(services);
+        RegionViewRegistry registry = new(services);
         configure(registry);
         services.AddSingleton<IRegionViewRegistry>(registry);
         return services;
@@ -34,7 +34,7 @@ public static class RegionServiceCollectionExtensions
     /// Convenience method that calls AddRegionViews and adds IRegionManager.
     /// Register <see cref="IRegionHostContentAdapter"/> before this to customize how view is displayed in the host.
     /// </summary>
-    public static IServiceCollection AddLiteObservableRegions(this IServiceCollection services, Action<IRegionViewRegistry> configure)
+    public static IServiceCollection AddObservableRegions(this IServiceCollection services, Action<IRegionViewRegistry> configure)
     {
         services.AddRegionViews(configure);
         services.AddSingleton<IRegionManager>(sp => new RegionManager(
