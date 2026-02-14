@@ -32,10 +32,13 @@ public sealed class RegionManager : IRegionManager
     private readonly Dictionary<string, RegionState> _regions = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, object> _singletonCache = new(StringComparer.OrdinalIgnoreCase);
 
-    public RegionManager(IServiceProvider rootProvider, IRegionViewRegistry registry)
+    private readonly IRegionHostContentAdapter _contentAdapter;
+
+    public RegionManager(IServiceProvider rootProvider, IRegionViewRegistry registry, IRegionHostContentAdapter contentAdapter = null)
     {
         _rootProvider = rootProvider ?? throw new ArgumentNullException(nameof(rootProvider));
         _registry = registry ?? throw new ArgumentNullException(nameof(registry));
+        _contentAdapter = contentAdapter ?? new DefaultRegionHostContentAdapter();
     }
 
     public void RegisterRegion(string regionName, object host)
@@ -94,7 +97,7 @@ public sealed class RegionManager : IRegionManager
         object currentView = GetViewFromEntry(regionName, state, current);
         InvokeNavigatedFrom(currentView, new NavigationContext(current.Context.FromUri, current.Context.ToUri, current.Context.Parameters, NavigationMode.Back, regionName, previous.Context.TargetName));
         object previousView = GetViewFromEntry(regionName, state, previous);
-        ObservableRegion.SetHostContent(state.Host, previousView);
+        _contentAdapter.SetContent(state.Host, previousView);
         InvokeNavigatedTo(previousView, previous.Context);
     }
 
@@ -113,7 +116,7 @@ public sealed class RegionManager : IRegionManager
         object currentView = GetViewFromEntry(regionName, state, current);
         InvokeNavigatedFrom(currentView, new NavigationContext(current.Context.FromUri, current.Context.ToUri, current.Context.Parameters, NavigationMode.Forward, regionName, next.Context.TargetName));
         object nextView = GetViewFromEntry(regionName, state, next);
-        ObservableRegion.SetHostContent(state.Host, nextView);
+        _contentAdapter.SetContent(state.Host, nextView);
         InvokeNavigatedTo(nextView, next.Context);
     }
 
@@ -200,7 +203,7 @@ public sealed class RegionManager : IRegionManager
             state.BackStack.Clear();
 
         state.CurrentEntry = new NavigationEntry(uri, view, context);
-        ObservableRegion.SetHostContent(state.Host, view);
+        _contentAdapter.SetContent(state.Host, view);
         InvokeNavigatedTo(view, context);
     }
 

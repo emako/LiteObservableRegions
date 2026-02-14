@@ -1,6 +1,5 @@
 using System;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace LiteObservableRegions;
 
@@ -45,17 +44,6 @@ public static class ObservableRegion
     public static void SetCurrentContent(DependencyObject obj, object value)
     {
         obj.SetValue(CurrentContentProperty, value);
-    }
-
-    /// <summary>
-    /// Called by RegionManager to display the resolved view in the host.
-    /// </summary>
-    internal static void SetHostContent(DependencyObject host, object content)
-    {
-        if (host is ContentControl cc)
-            cc.Content = content;
-        else
-            SetCurrentContent(host, content);
     }
 
     private static void OnRegionNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

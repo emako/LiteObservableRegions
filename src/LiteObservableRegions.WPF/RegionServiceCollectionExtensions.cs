@@ -32,11 +32,15 @@ public static class RegionServiceCollectionExtensions
     /// <summary>
     /// Registers region views and <see cref="IRegionManager"/>.
     /// Convenience method that calls AddRegionViews and adds IRegionManager.
+    /// Register <see cref="IRegionHostContentAdapter"/> before this to customize how view is displayed in the host.
     /// </summary>
     public static IServiceCollection AddLiteObservableRegions(this IServiceCollection services, Action<IRegionViewRegistry> configure)
     {
         services.AddRegionViews(configure);
-        services.AddSingleton<IRegionManager>(sp => new RegionManager(sp, sp.GetRequiredService<IRegionViewRegistry>()));
+        services.AddSingleton<IRegionManager>(sp => new RegionManager(
+            sp,
+            sp.GetRequiredService<IRegionViewRegistry>(),
+            sp.GetService<IRegionHostContentAdapter>()));
         return services;
     }
 }
