@@ -16,8 +16,8 @@
 		<Authors>ema</Authors>
 		<Company>ema</Company>
 		<Description>Prism-like Regions in .NET XAML markup for WPF and others UI framework.</Description>
-		<PackageProjectUrl>https://github.com/emako/Regions.NET</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/emako/Regions.NET</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/emako/LiteObservableRegions</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/emako/LiteObservableRegions</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>.NET WPF Regions</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
