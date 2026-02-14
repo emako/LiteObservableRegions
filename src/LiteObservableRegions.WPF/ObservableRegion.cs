@@ -58,25 +58,12 @@ public static class ObservableRegion
             SetCurrentContent(host, content);
     }
 
-    /// <summary>
-    /// Normalizes region name: if value starts with "region://", strips that prefix and returns the rest; otherwise returns value as-is.
-    /// </summary>
-    public static string NormalizeRegionName(string value)
-    {
-        if (string.IsNullOrEmpty(value))
-            return value;
-        string prefix = RegionUriParser.Scheme + "://";
-        if (value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-            return value.Substring(prefix.Length).Trim();
-        return value;
-    }
-
     private static void OnRegionNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         string name = e.NewValue as string;
         if (string.IsNullOrEmpty(name))
             return;
-        string regionName = NormalizeRegionName(name);
+        string regionName = RegionUriParser.NormalizeRegionName(name);
         if (string.IsNullOrEmpty(regionName))
             return;
         if (regionName != name)
@@ -90,7 +77,7 @@ public static class ObservableRegion
             if (provider != null)
             {
                 IRegionManager manager = provider.GetService(typeof(IRegionManager)) as IRegionManager;
-                manager?.RegisterRegion(regionName, d);
+                manager?.RegisterRegion(name, d);
             }
         }
         catch

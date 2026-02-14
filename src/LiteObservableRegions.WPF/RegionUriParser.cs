@@ -12,6 +12,20 @@ public static class RegionUriParser
     public const string Scheme = "region";
 
     /// <summary>
+    /// Normalizes region name: if value starts with "region://", strips that prefix and returns the rest; otherwise returns value as-is.
+    /// Used by RegisterRegion and XAML so that both C# and XAML can pass "region://MainGridRegion" or "MainGridRegion".
+    /// </summary>
+    public static string NormalizeRegionName(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return value;
+        string prefix = Scheme + "://";
+        if (value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return value.Substring(prefix.Length).Trim();
+        return value;
+    }
+
+    /// <summary>
     /// Tries to parse a region URI. Format: region://RegionName/TargetName?query
     /// Path is /TargetName (first segment after host is the target).
     /// </summary>

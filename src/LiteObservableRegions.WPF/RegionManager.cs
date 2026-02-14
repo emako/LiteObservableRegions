@@ -40,7 +40,9 @@ public sealed class RegionManager : IRegionManager
 
     public void RegisterRegion(string regionName, object host)
     {
-        if (string.IsNullOrEmpty(regionName)) throw new ArgumentNullException(nameof(regionName));
+        if (regionName == null) throw new ArgumentNullException(nameof(regionName));
+        regionName = RegionUriParser.NormalizeRegionName(regionName);
+        if (string.IsNullOrEmpty(regionName)) throw new ArgumentException("Region name cannot be null or empty.", nameof(regionName));
         if (host == null) throw new ArgumentNullException(nameof(host));
 
         if (host is not DependencyObject depObj)
