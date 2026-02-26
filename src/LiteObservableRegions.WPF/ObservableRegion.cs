@@ -142,4 +142,23 @@ public static class ObservableRegion
     {
         obj.SetValue(CurrentContentProperty, value);
     }
+
+    /// <summary>
+    /// Region context data. No change handling; use as storage for arbitrary object data.
+    /// </summary>
+    public static readonly DependencyProperty RegionContextProperty = DependencyProperty.RegisterAttached(
+        "RegionContext",
+        typeof(object),
+        typeof(ObservableRegion),
+        new PropertyMetadata(null));
+
+    public static object GetRegionContext(DependencyObject obj)
+    {
+        return obj.GetValue(RegionContextProperty);
+    }
+
+    public static void SetRegionContext(DependencyObject obj, object value)
+    {
+        obj.SetValue(RegionContextProperty, value);
+    }
 }
