@@ -54,7 +54,13 @@ public partial class MainWindow : Window
     private void BtnTest_Click(object? sender, RoutedEventArgs e)
     {
         // Open internal objects ...
-        _ = _regionManager.Regions;
+        RegionState? region = _regionManager
+            .Regions
+            .Where(pair => pair.Key == "MainGridRegion")
+            .Select(r => r.Value)
+            .FirstOrDefault();
+
+        object view = _regionManager.ResolveView("MainGridRegion", "GridA");
 
         Debugger.Break();
     }

@@ -96,7 +96,7 @@ public sealed class RegionManager(
 
         NavigationEntry current = state.CurrentEntry;
         NavigationEntry previous = state.BackStack.Peek();
-        RegionChangedEventArgs args = new RegionChangedEventArgs(
+        RegionChangedEventArgs args = new(
             regionName,
             current?.Uri,
             previous.Uri,
@@ -129,7 +129,7 @@ public sealed class RegionManager(
 
         NavigationEntry current = state.CurrentEntry;
         NavigationEntry next = state.ForwardStack.Peek();
-        RegionChangedEventArgs args = new RegionChangedEventArgs(
+        RegionChangedEventArgs args = new(
             regionName,
             current?.Uri,
             next.Uri,
@@ -174,7 +174,7 @@ public sealed class RegionManager(
     {
         if (string.IsNullOrEmpty(regionName))
             return null;
-        if (!_regions.TryGetValue(regionName, out RegionState state))
+        if (!_regions.TryGetValue(regionName, out _))
             return null;
         return new RegionView(this, regionName);
     }
@@ -238,8 +238,7 @@ public sealed class RegionManager(
         {
             get
             {
-                RegionState state;
-                return _manager._regions.TryGetValue(_name, out state) ? state.Host : null;
+                return _manager._regions.TryGetValue(_name, out RegionState state) ? state.Host : null;
             }
         }
 
@@ -278,14 +277,14 @@ public sealed class RegionManager(
         Uri fromUri = state.CurrentEntry?.Uri;
         string fromTargetName = state.CurrentEntry?.Context.TargetName ?? string.Empty;
 
-        RegionChangedEventArgs args = new RegionChangedEventArgs(regionName, fromUri, uri, fromTargetName, targetName, mode);
+        RegionChangedEventArgs args = new(regionName, fromUri, uri, fromTargetName, targetName, mode);
         _onRegionChanging?.Invoke(args);
         if (args.Cancel)
             return;
 
         NavigationContext context = new(fromUri, uri, parameters, mode, regionName, targetName);
 
-        object view = ResolveView(regionName, targetName, parameters, context) ?? throw new InvalidOperationException($"No view registered for target '{targetName}'.");
+        object view = ResolveView(regionName, targetName) ?? throw new InvalidOperationException($"No view registered for target '{targetName}'.");
         if (state.CurrentEntry != null)
         {
             object currentView = GetViewFromEntry(regionName, state, state.CurrentEntry);
@@ -303,7 +302,7 @@ public sealed class RegionManager(
         InvokeNavigatedTo(view, context);
     }
 
-    private object ResolveView(string regionName, string targetName, IReadOnlyDictionary<string, string> parameters, NavigationContext context)
+    public object ResolveView(string regionName, string targetName)
     {
         if (_regions.TryGetValue(regionName, out RegionState state) &&
             state.NamedViews.TryGetValue(targetName, out WeakReference wr))
@@ -360,7 +359,7 @@ public sealed class RegionManager(
         object view = entry.ViewRef.Target;
         if (view != null)
             return view;
-        return ResolveView(regionName, entry.Context.TargetName, entry.Context.Parameters, entry.Context);
+        return ResolveView(regionName, entry.Context.TargetName);
     }
 
     private static void InvokeNavigatedFrom(object view, NavigationContext context)
