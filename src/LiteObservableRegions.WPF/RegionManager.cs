@@ -116,6 +116,31 @@ public sealed class RegionManager(IServiceProvider rootProvider, IRegionViewRegi
         return new RegionView(this, regionName);
     }
 
+    public void RegisterNamedView(string regionName, string viewName, object view)
+    {
+        if (regionName == null) throw new ArgumentNullException(nameof(regionName));
+        regionName = RegionUriParser.NormalizeRegionName(regionName);
+        if (string.IsNullOrEmpty(regionName)) throw new ArgumentException("Region name cannot be null or empty.", nameof(regionName));
+        if (string.IsNullOrEmpty(viewName)) throw new ArgumentException("View name cannot be null or empty.", nameof(viewName));
+        if (view == null) throw new ArgumentNullException(nameof(view));
+
+        if (!_regions.TryGetValue(regionName, out RegionState state))
+            return;
+
+        state.NamedViews[viewName] = new WeakReference(view);
+
+        if (view is FrameworkElement fe)
+        {
+            fe.Unloaded += (s, e) =>
+            {
+                if (_regions.TryGetValue(regionName, out RegionState st) && st.NamedViews.TryGetValue(viewName, out WeakReference wr) && wr.Target == view)
+                {
+                    st.NamedViews.Remove(viewName);
+                }
+            };
+        }
+    }
+
     private sealed class RegionView : IRegion
     {
         private readonly RegionManager _manager;
@@ -186,6 +211,15 @@ public sealed class RegionManager(IServiceProvider rootProvider, IRegionViewRegi
 
     private object ResolveView(string regionName, string targetName, IReadOnlyDictionary<string, string> parameters, NavigationContext context)
     {
+        if (_regions.TryGetValue(regionName, out RegionState state) &&
+            state.NamedViews.TryGetValue(targetName, out WeakReference wr))
+        {
+            object namedView = wr.Target;
+            if (namedView != null)
+                return namedView;
+            state.NamedViews.Remove(targetName);
+        }
+
         ViewRegistration entry = default;
         foreach (ViewRegistration e in _registry.GetEntries())
         {
@@ -215,10 +249,10 @@ public sealed class RegionManager(IServiceProvider rootProvider, IRegionViewRegi
 
         if (lifetime == ServiceLifetime.Scoped)
         {
-            if (!_regions.TryGetValue(regionName, out RegionState state))
+            if (!_regions.TryGetValue(regionName, out RegionState regionState))
                 return null;
-            state.Scope ??= _rootProvider.CreateScope();
-            return state.Scope.ServiceProvider.GetService(entry.ViewType);
+            regionState.Scope ??= _rootProvider.CreateScope();
+            return regionState.Scope.ServiceProvider.GetService(entry.ViewType);
         }
 
         return null;

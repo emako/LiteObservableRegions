@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -12,6 +12,11 @@ internal sealed class RegionState(DependencyObject host)
     public Stack<NavigationEntry> ForwardStack { get; } = new Stack<NavigationEntry>();
     public NavigationEntry CurrentEntry { get; set; }
     public IServiceScope Scope { get; set; }
+
+    /// <summary>
+    /// View name -> view instance (weak). Filled by RegisterNamedView (e.g. from ObservableRegion.ViewName).
+    /// </summary>
+    public Dictionary<string, WeakReference> NamedViews { get; } = new Dictionary<string, WeakReference>(StringComparer.OrdinalIgnoreCase);
 
     public void DisposeScope()
     {

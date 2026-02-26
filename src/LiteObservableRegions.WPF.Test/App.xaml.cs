@@ -1,7 +1,6 @@
-using LiteObservableRegions;
+using LiteObservableRegions.WPF.Test.Views;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
-using LiteObservableRegions.WPF.Test.Views;
 
 namespace LiteObservableRegions.WPF.Test;
 

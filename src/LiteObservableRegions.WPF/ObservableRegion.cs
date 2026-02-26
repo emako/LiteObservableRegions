@@ -28,6 +28,74 @@ public static class ObservableRegion
         obj.SetValue(RegionNameProperty, value);
     }
 
+    /// <summary>
+    /// View name URI (e.g. "region://TestGridRegion/View1"). Set on a child of the region host.
+    /// The host part must match the host's RegionName; the path segment (e.g. View1) is used to switch views without DI.
+    /// </summary>
+    public static readonly DependencyProperty ViewNameProperty = DependencyProperty.RegisterAttached(
+        "ViewName",
+        typeof(string),
+        typeof(ObservableRegion),
+        new PropertyMetadata(null, OnViewNameChanged));
+
+    public static string GetViewName(DependencyObject obj)
+    {
+        return (string)obj.GetValue(ViewNameProperty);
+    }
+
+    public static void SetViewName(DependencyObject obj, string value)
+    {
+        obj.SetValue(ViewNameProperty, value);
+    }
+
+    private static void OnViewNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        string value = e.NewValue as string;
+        if (string.IsNullOrEmpty(value))
+            return;
+        if (!Uri.TryCreate(value, UriKind.Absolute, out Uri uri) || !RegionUriParser.TryParse(uri, out string regionName, out string viewName, out _))
+            return;
+        if (string.IsNullOrEmpty(viewName))
+            return;
+
+        DependencyObject host = FindRegionHost(d);
+        if (host == null)
+            return;
+        string hostRegionName = RegionUriParser.NormalizeRegionName(GetRegionName(host) ?? string.Empty);
+        if (string.IsNullOrEmpty(hostRegionName) || !string.Equals(hostRegionName, regionName, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        try
+        {
+            IServiceProvider provider = RegionServiceProvider.Current;
+            if (provider != null)
+            {
+                IRegionManager manager = provider.GetService(typeof(IRegionManager)) as IRegionManager;
+                manager?.RegisterNamedView(hostRegionName, viewName, d);
+            }
+        }
+        catch
+        {
+            // RegionServiceProvider may not be set yet.
+        }
+    }
+
+    /// <summary>
+    /// Finds the nearest ancestor that has RegionName set (the region host).
+    /// </summary>
+    private static DependencyObject FindRegionHost(DependencyObject child)
+    {
+        DependencyObject current = child;
+        while (current != null)
+        {
+            string name = GetRegionName(current);
+            if (!string.IsNullOrEmpty(name))
+                return current;
+            current = LogicalTreeHelper.GetParent(current);
+        }
+        return null;
+    }
+
     private static void OnRegionNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         string name = e.NewValue as string;
