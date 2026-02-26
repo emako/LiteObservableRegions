@@ -6,7 +6,7 @@ namespace LiteObservableRegions;
 /// Static access to the application's service provider. Set by the host (e.g. in App.OnStartup) so that
 /// XAML-attached region registration can resolve IRegionManager.
 /// </summary>
-public static class RegionServiceProvider
+internal static class RegionServiceProvider
 {
     /// <summary>
     /// Current service provider. Set by the host after building the DI container.

@@ -26,6 +26,6 @@ public partial class App : Application
         });
 
         ServiceProvider = services.BuildServiceProvider();
-        RegionServiceProvider.Current = ServiceProvider;
+        WeakReferenceRegionHub.ServiceProvider = ServiceProvider;
     }
 }

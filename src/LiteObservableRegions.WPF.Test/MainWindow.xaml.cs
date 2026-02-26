@@ -10,7 +10,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        _regionManager = RegionServiceProvider.GetRequiredService<IRegionManager>();
+        _regionManager = WeakReferenceRegionHub.RegionManager;
         Loaded += (s, e) =>
         {
             _regionManager.Navigate(new Uri("region://MainGridRegion/GridA", UriKind.Absolute));
