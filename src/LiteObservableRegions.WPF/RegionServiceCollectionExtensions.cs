@@ -44,8 +44,14 @@ public static class RegionServiceCollectionExtensions
         services.AddSingleton<IRegionManager>(sp => new RegionManager(
             sp,
             sp.GetRequiredService<IRegionViewRegistry>(),
-            sp.GetService<IRegionHostContentAdapter>()));
+            sp.GetService<IRegionHostContentAdapter>(),
+            onRegionChanging: RegionChangedHubCallback));
         return services;
+    }
+
+    private static void RegionChangedHubCallback(RegionChangedEventArgs e)
+    {
+        WeakReferenceRegionHub.RaiseRegionChanged(e);
     }
 }
 

@@ -9,13 +9,19 @@ using System.Windows;
 
 namespace LiteObservableRegions;
 
-public sealed class RegionManager(IServiceProvider rootProvider, IRegionViewRegistry registry, IRegionHostContentAdapter contentAdapter = null) : IRegionManager
+public sealed class RegionManager(
+    IServiceProvider rootProvider,
+    IRegionViewRegistry registry,
+    IRegionHostContentAdapter contentAdapter = null,
+    Action<RegionChangedEventArgs> onRegionChanging = null) : IRegionManager
 {
     private readonly IServiceProvider _rootProvider = rootProvider ?? throw new ArgumentNullException(nameof(rootProvider));
     private readonly IRegionViewRegistry _registry = registry ?? throw new ArgumentNullException(nameof(registry));
     private readonly Dictionary<string, RegionState> _regions = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, object> _singletonCache = new(StringComparer.OrdinalIgnoreCase);
+
     private readonly IRegionHostContentAdapter _contentAdapter = contentAdapter ?? new DefaultRegionHostContentAdapter();
+    private readonly Action<RegionChangedEventArgs> _onRegionChanging = onRegionChanging;
 
     /// <summary>
     /// All registered regions (region name -> state).
@@ -71,7 +77,19 @@ public sealed class RegionManager(IServiceProvider rootProvider, IRegionViewRegi
             return;
 
         NavigationEntry current = state.CurrentEntry;
-        NavigationEntry previous = state.BackStack.Pop();
+        NavigationEntry previous = state.BackStack.Peek();
+        RegionChangedEventArgs args = new RegionChangedEventArgs(
+            regionName,
+            current?.Uri,
+            previous.Uri,
+            current?.Context.TargetName ?? string.Empty,
+            previous.Context.TargetName,
+            NavigationMode.Back);
+        _onRegionChanging?.Invoke(args);
+        if (args.Cancel)
+            return;
+
+        state.BackStack.Pop();
         state.ForwardStack.Push(new NavigationEntry(current.Uri, GetViewFromEntry(regionName, state, current), current.Context));
         state.CurrentEntry = previous;
 
@@ -90,7 +108,19 @@ public sealed class RegionManager(IServiceProvider rootProvider, IRegionViewRegi
             return;
 
         NavigationEntry current = state.CurrentEntry;
-        NavigationEntry next = state.ForwardStack.Pop();
+        NavigationEntry next = state.ForwardStack.Peek();
+        RegionChangedEventArgs args = new RegionChangedEventArgs(
+            regionName,
+            current?.Uri,
+            next.Uri,
+            current?.Context.TargetName ?? string.Empty,
+            next.Context.TargetName,
+            NavigationMode.Forward);
+        _onRegionChanging?.Invoke(args);
+        if (args.Cancel)
+            return;
+
+        state.ForwardStack.Pop();
         state.BackStack.Push(new NavigationEntry(current.Uri, GetViewFromEntry(regionName, state, current), current.Context));
         state.CurrentEntry = next;
 
@@ -200,6 +230,13 @@ public sealed class RegionManager(IServiceProvider rootProvider, IRegionViewRegi
 
         NavigationMode mode = pushBack ? NavigationMode.Push : NavigationMode.Replace;
         Uri fromUri = state.CurrentEntry?.Uri;
+        string fromTargetName = state.CurrentEntry?.Context.TargetName ?? string.Empty;
+
+        RegionChangedEventArgs args = new RegionChangedEventArgs(regionName, fromUri, uri, fromTargetName, targetName, mode);
+        _onRegionChanging?.Invoke(args);
+        if (args.Cancel)
+            return;
+
         NavigationContext context = new(fromUri, uri, parameters, mode, regionName, targetName);
 
         object view = ResolveView(regionName, targetName, parameters, context) ?? throw new InvalidOperationException($"No view registered for target '{targetName}'.");

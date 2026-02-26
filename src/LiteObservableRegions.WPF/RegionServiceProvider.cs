@@ -6,17 +6,17 @@ namespace LiteObservableRegions;
 /// Static access to the application's service provider. Set by the host (e.g. in App.OnStartup) so that
 /// XAML-attached region registration can resolve IRegionManager.
 /// </summary>
-internal static class RegionServiceProvider
+internal class RegionServiceProvider
 {
     /// <summary>
     /// Current service provider. Set by the host after building the DI container.
     /// </summary>
-    public static IServiceProvider Current { get; set; }
+    public IServiceProvider Current { get; set; }
 
     /// <summary>
     /// Gets a required service.
     /// </summary>
-    public static T GetRequiredService<T>() where T : notnull
+    public T GetRequiredService<T>() where T : notnull
     {
         if (Current == null)
             throw new InvalidOperationException("RegionServiceProvider.Current has not been set.");
@@ -27,7 +27,7 @@ internal static class RegionServiceProvider
     /// <summary>
     /// Gets a service, or null.
     /// </summary>
-    public static T GetService<T>()
+    public T GetService<T>()
     {
         if (Current == null)
             return default;

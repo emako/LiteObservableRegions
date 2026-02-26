@@ -67,7 +67,7 @@ public static class ObservableRegion
 
         try
         {
-            IServiceProvider provider = RegionServiceProvider.Current;
+            IServiceProvider provider = WeakReferenceRegionHub.ServiceProvider;
             if (provider != null)
             {
                 IRegionManager manager = provider.GetService(typeof(IRegionManager)) as IRegionManager;
@@ -111,7 +111,7 @@ public static class ObservableRegion
         }
         try
         {
-            IServiceProvider provider = RegionServiceProvider.Current;
+            IServiceProvider provider = WeakReferenceRegionHub.ServiceProvider;
             if (provider != null)
             {
                 IRegionManager manager = provider.GetService(typeof(IRegionManager)) as IRegionManager;
