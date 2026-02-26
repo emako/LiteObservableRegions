@@ -6,13 +6,7 @@ namespace LiteObservableRegions;
 /// <summary>
 /// Read-only context passed to INavigationAware and used for journal entries.
 /// </summary>
-public sealed class NavigationContext(
-    Uri fromUri,
-    Uri toUri,
-    IReadOnlyDictionary<string, string> parameters,
-    NavigationMode mode,
-    string regionName,
-    string targetName)
+public sealed class NavigationContext(Uri fromUri, Uri toUri, IReadOnlyDictionary<string, string> parameters, NavigationMode mode, string regionName, string targetName)
 {
     /// <summary>
     /// URI before this navigation (null for initial).
@@ -48,30 +42,4 @@ public sealed class NavigationContext(
     /// Target name (from region://RegionName/TargetName).
     /// </summary>
     public string TargetName { get; } = targetName ?? throw new ArgumentNullException(nameof(targetName));
-}
-
-/// <summary>
-/// Navigation mode for the current transition.
-/// </summary>
-public enum NavigationMode
-{
-    /// <summary>
-    /// New navigation (push onto back stack).
-    /// </summary>
-    Navigate,
-
-    /// <summary>
-    /// Redirect (replace current, no back stack push).
-    /// </summary>
-    Redirect,
-
-    /// <summary>
-    /// Navigating back.
-    /// </summary>
-    GoBack,
-
-    /// <summary>
-    /// Navigating forward.
-    /// </summary>
-    GoForward,
 }

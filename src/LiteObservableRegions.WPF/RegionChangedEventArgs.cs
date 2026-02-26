@@ -8,13 +8,7 @@ namespace LiteObservableRegions;
 /// Set <see cref="Cancel"/> to true to prevent the navigation.
 /// </summary>
 [DebuggerDisplay("{ToString()}")]
-public sealed class RegionChangedEventArgs(
-    string regionName,
-    Uri fromUri,
-    Uri toUri,
-    string fromTargetName,
-    string toTargetName,
-    NavigationMode mode) : EventArgs
+public sealed class RegionChangedEventArgs(string regionName, Uri fromUri, Uri toUri, string fromTargetName, string toTargetName, NavigationMode mode) : EventArgs
 {
     /// <summary>
     /// Region name (e.g. "MainRegion").
