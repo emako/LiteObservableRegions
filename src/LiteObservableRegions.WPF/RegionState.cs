@@ -5,6 +5,9 @@ using System.Windows;
 
 namespace LiteObservableRegions;
 
+/// <summary>
+/// State for a single region (host, stacks, named views, scope).
+/// </summary>
 public sealed class RegionState(DependencyObject host)
 {
     public DependencyObject Host { get; } = host ?? throw new ArgumentNullException(nameof(host));

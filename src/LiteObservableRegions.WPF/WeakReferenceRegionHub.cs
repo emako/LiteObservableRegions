@@ -1,4 +1,4 @@
-﻿using LiteObservableRegions.Abstractions;
+using LiteObservableRegions.Abstractions;
 using System;
 
 namespace LiteObservableRegions;
@@ -13,4 +13,10 @@ public class WeakReferenceRegionHub
 
     public static IRegionManager RegionManager
         => RegionServiceProvider.GetRequiredService<IRegionManager>();
+
+    /// <summary>
+    /// Clears all named views (per region) and the singleton view cache. No-op if the service provider is not set.
+    /// </summary>
+    public static void Clear()
+        => RegionManager?.Clear();
 }

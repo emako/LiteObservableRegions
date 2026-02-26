@@ -7,7 +7,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
 		<LangVersion>preview</LangVersion>
-		<RootNamespace>Regions.Test</RootNamespace>
+		<RootNamespace>LiteObservableRegions.WPF.Test</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>
