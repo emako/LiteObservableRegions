@@ -2,6 +2,7 @@ using LiteObservableRegions.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
@@ -227,6 +228,13 @@ public sealed class RegionManager(
 
         if (!_regions.TryGetValue(regionName, out RegionState state))
             throw new InvalidOperationException($"Region '{regionName}' is not registered.");
+
+        // Navigate: avoid redundant navigation to current location (Vue Router style)
+        if (pushBack && state.CurrentEntry != null && state.CurrentEntry.Uri != null && state.CurrentEntry.Uri.Equals(uri))
+        {
+            Debug.WriteLine($"NavigationDuplicated: Avoided redundant navigation to current location ({uri})");
+            return;
+        }
 
         NavigationMode mode = pushBack ? NavigationMode.Navigate : NavigationMode.Redirect;
         Uri fromUri = state.CurrentEntry?.Uri;
