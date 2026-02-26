@@ -8,7 +8,7 @@
     xmlns:r="http://schemas.github.com/liteobservableregions/2026/xaml"
     xmlns:view="clr-namespace:LiteObservableRegions.WPF.Test.Views"
     Title="LiteObservableRegions Test"
-    Width="800"
+    Width="860"
     Height="450"
     mc:Ignorable="d">
     <Grid>
@@ -55,6 +55,13 @@
                 Margin="10"
                 Click="BtnForward_Click"
                 Content="GoForward" />
+            <Button
+                x:Name="BtnTest"
+                Width="120"
+                Height="40"
+                Margin="10"
+                Click="BtnTest_Click"
+                Content="Test..." />
         </StackPanel>
         <!--  DependencyInjection View  -->
         <ContentControl Grid.Row="1" r:ObservableRegion.RegionName="region://MainGridRegion" />

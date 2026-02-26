@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace LiteObservableRegions.Abstractions;
 
 /// <summary>
@@ -5,6 +7,8 @@ namespace LiteObservableRegions.Abstractions;
 /// </summary>
 public interface IRegionManager : IRegionNavigation
 {
+    public Dictionary<string, RegionState> Regions { get; }
+
     /// <summary>
     /// Registers a host element as a region. Called by the ObservableRegion attached property.
     /// </summary>

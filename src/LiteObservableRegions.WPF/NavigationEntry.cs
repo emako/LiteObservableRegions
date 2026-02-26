@@ -2,7 +2,7 @@
 
 namespace LiteObservableRegions;
 
-internal sealed class NavigationEntry
+public sealed class NavigationEntry
 {
     public Uri Uri { get; }
     public WeakReference ViewRef { get; }

@@ -15,8 +15,9 @@ public sealed class RegionManager(IServiceProvider rootProvider, IRegionViewRegi
     private readonly IRegionViewRegistry _registry = registry ?? throw new ArgumentNullException(nameof(registry));
     private readonly Dictionary<string, RegionState> _regions = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, object> _singletonCache = new(StringComparer.OrdinalIgnoreCase);
-
     private readonly IRegionHostContentAdapter _contentAdapter = contentAdapter ?? new DefaultRegionHostContentAdapter();
+
+    public Dictionary<string, RegionState> Regions => _regions;
 
     public void RegisterRegion(string regionName, object host)
     {
@@ -139,42 +140,6 @@ public sealed class RegionManager(IServiceProvider rootProvider, IRegionViewRegi
                 }
             };
         }
-    }
-
-    private sealed class RegionView : IRegion
-    {
-        private readonly RegionManager _manager;
-        private readonly string _name;
-
-        internal RegionView(RegionManager manager, string name)
-        {
-            _manager = manager;
-            _name = name;
-        }
-
-        public string Name => _name;
-
-        public object Host
-        {
-            get
-            {
-                RegionState state;
-                return _manager._regions.TryGetValue(_name, out state) ? state.Host : null;
-            }
-        }
-
-        public Uri CurrentUri
-        {
-            get
-            {
-                if (!_manager._regions.TryGetValue(_name, out RegionState state) || state.CurrentEntry == null)
-                    return null;
-                return state.CurrentEntry.Uri;
-            }
-        }
-
-        public bool CanGoBack => _manager.CanGoBack(_name);
-        public bool CanGoForward => _manager.CanGoForward(_name);
     }
 
     private void PerformNavigation(Uri uri, bool pushBack, bool clearForward)

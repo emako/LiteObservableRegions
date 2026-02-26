@@ -5,7 +5,7 @@ using System.Windows;
 
 namespace LiteObservableRegions;
 
-internal sealed class RegionState(DependencyObject host)
+public sealed class RegionState(DependencyObject host)
 {
     public DependencyObject Host { get; } = host ?? throw new ArgumentNullException(nameof(host));
     public Stack<NavigationEntry> BackStack { get; } = new Stack<NavigationEntry>();

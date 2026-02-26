@@ -41,4 +41,10 @@ public partial class MainWindow : Window
     {
         _regionManager?.Redirect(new Uri("region://MainGridRegion/GridA", UriKind.Absolute));
     }
+
+    private void BtnTest_Click(object sender, RoutedEventArgs e)
+    {
+        // Open internal objects ...
+        _ = _regionManager.Regions;
+    }
 }
