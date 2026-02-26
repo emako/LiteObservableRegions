@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<PackageId>LiteObservableRegions</PackageId>
 		<Product>LiteObservableRegions</Product>
-		<TargetFrameworks>net462;net472;net48;net5.0-windows;net6.0-windows;net7.0-windows;net8.0-windows;net9.0-windows;net10.0-windows</TargetFrameworks>
+		<TargetFrameworks>net462;net472;net48;net481;net5.0-windows;net6.0-windows;net7.0-windows;net8.0-windows;net9.0-windows;net10.0-windows</TargetFrameworks>
 		<UseWPF>true</UseWPF>
 		<AssemblyName>LiteObservableRegions</AssemblyName>
 		<Nullable>disable</Nullable>
@@ -19,7 +19,7 @@
 		<PackageProjectUrl>https://github.com/emako/LiteObservableRegions</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/emako/LiteObservableRegions</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageTags>.NET WPF Regions</PackageTags>
+		<PackageTags>.NET Prism MVVM WPF Regions ObservableRegions</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>Logo.png</PackageIcon>
