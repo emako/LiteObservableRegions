@@ -84,7 +84,7 @@ public sealed class RegionManager(
             previous.Uri,
             current?.Context.TargetName ?? string.Empty,
             previous.Context.TargetName,
-            NavigationMode.Back);
+            NavigationMode.GoBack);
         _onRegionChanging?.Invoke(args);
         if (args.Cancel)
             return;
@@ -94,7 +94,7 @@ public sealed class RegionManager(
         state.CurrentEntry = previous;
 
         object currentView = GetViewFromEntry(regionName, state, current);
-        InvokeNavigatedFrom(currentView, new NavigationContext(current.Context.FromUri, current.Context.ToUri, current.Context.Parameters, NavigationMode.Back, regionName, previous.Context.TargetName));
+        InvokeNavigatedFrom(currentView, new NavigationContext(current.Context.FromUri, current.Context.ToUri, current.Context.Parameters, NavigationMode.GoBack, regionName, previous.Context.TargetName));
         object previousView = GetViewFromEntry(regionName, state, previous);
         _contentAdapter.SetContent(state.Host, previousView);
         InvokeNavigatedTo(previousView, previous.Context);
@@ -115,7 +115,7 @@ public sealed class RegionManager(
             next.Uri,
             current?.Context.TargetName ?? string.Empty,
             next.Context.TargetName,
-            NavigationMode.Forward);
+            NavigationMode.GoForward);
         _onRegionChanging?.Invoke(args);
         if (args.Cancel)
             return;
@@ -125,7 +125,7 @@ public sealed class RegionManager(
         state.CurrentEntry = next;
 
         object currentView = GetViewFromEntry(regionName, state, current);
-        InvokeNavigatedFrom(currentView, new NavigationContext(current.Context.FromUri, current.Context.ToUri, current.Context.Parameters, NavigationMode.Forward, regionName, next.Context.TargetName));
+        InvokeNavigatedFrom(currentView, new NavigationContext(current.Context.FromUri, current.Context.ToUri, current.Context.Parameters, NavigationMode.GoForward, regionName, next.Context.TargetName));
         object nextView = GetViewFromEntry(regionName, state, next);
         _contentAdapter.SetContent(state.Host, nextView);
         InvokeNavigatedTo(nextView, next.Context);
@@ -228,7 +228,7 @@ public sealed class RegionManager(
         if (!_regions.TryGetValue(regionName, out RegionState state))
             throw new InvalidOperationException($"Region '{regionName}' is not registered.");
 
-        NavigationMode mode = pushBack ? NavigationMode.Push : NavigationMode.Replace;
+        NavigationMode mode = pushBack ? NavigationMode.Navigate : NavigationMode.Redirect;
         Uri fromUri = state.CurrentEntry?.Uri;
         string fromTargetName = state.CurrentEntry?.Context.TargetName ?? string.Empty;
 
