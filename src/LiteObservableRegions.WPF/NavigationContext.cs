@@ -4,8 +4,14 @@ using System.Collections.Generic;
 namespace LiteObservableRegions;
 
 /// <summary>
-/// Read-only context passed to INavigationAware and used for journal entries.
+/// Read-only context passed to <see cref="INavigationAware"/> and used for journal entries.
 /// </summary>
+/// <param name="fromUri">URI before this navigation (null for initial).</param>
+/// <param name="toUri">Target URI of this navigation (must not be null).</param>
+/// <param name="parameters">Parsed query parameters (e.g. from ?a=1&amp;b=2); must not be null.</param>
+/// <param name="mode">Navigation mode (Navigate, Redirect, GoBack, GoForward).</param>
+/// <param name="regionName">Region name (must not be null).</param>
+/// <param name="targetName">Target name from the URI path (must not be null).</param>
 public sealed class NavigationContext(Uri fromUri, Uri toUri, IReadOnlyDictionary<string, string> parameters, NavigationMode mode, string regionName, string targetName)
 {
     /// <summary>

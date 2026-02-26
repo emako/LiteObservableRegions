@@ -6,11 +6,12 @@ namespace LiteObservableRegions;
 
 /// <summary>
 /// Attached properties for declaring a region in XAML and binding current content.
+/// Set <see cref="RegionNameProperty"/> on the host element; optionally set <see cref="ViewNameProperty"/> on children for named views.
 /// </summary>
 public static class ObservableRegion
 {
     /// <summary>
-    /// Region name (e.g. "MainRegion"). Set on the host element.
+    /// Region name (e.g. "MainRegion"). Set on the host element to register it as a region.
     /// </summary>
     public static readonly DependencyProperty RegionNameProperty = DependencyProperty.RegisterAttached(
         "RegionName",
@@ -18,11 +19,21 @@ public static class ObservableRegion
         typeof(ObservableRegion),
         new PropertyMetadata(null, OnRegionNameChanged));
 
+    /// <summary>
+    /// Gets the region name from the given element.
+    /// </summary>
+    /// <param name="obj">The element.</param>
+    /// <returns>The region name, or null if not set.</returns>
     public static string GetRegionName(DependencyObject obj)
     {
         return (string)obj.GetValue(RegionNameProperty);
     }
 
+    /// <summary>
+    /// Sets the region name on the given element (registers it as a region host).
+    /// </summary>
+    /// <param name="obj">The host element.</param>
+    /// <param name="value">Region name; "region://Name" or "Name" (normalized on set).</param>
     public static void SetRegionName(DependencyObject obj, string value)
     {
         obj.SetValue(RegionNameProperty, value);
@@ -38,11 +49,21 @@ public static class ObservableRegion
         typeof(ObservableRegion),
         new PropertyMetadata(null, OnViewNameChanged));
 
+    /// <summary>
+    /// Gets the view name URI from the given element (e.g. "region://RegionName/View1").
+    /// </summary>
+    /// <param name="obj">The element (typically a child of the region host).</param>
+    /// <returns>The view name URI, or null if not set.</returns>
     public static string GetViewName(DependencyObject obj)
     {
         return (string)obj.GetValue(ViewNameProperty);
     }
 
+    /// <summary>
+    /// Sets the view name URI on a child of the host; the child is registered as a named view for the path segment.
+    /// </summary>
+    /// <param name="obj">The child element.</param>
+    /// <param name="value">Full URI like "region://RegionName/View1"; host part must match the host's RegionName.</param>
     public static void SetViewName(DependencyObject obj, string value)
     {
         obj.SetValue(ViewNameProperty, value);
@@ -133,11 +154,21 @@ public static class ObservableRegion
         typeof(ObservableRegion),
         new PropertyMetadata(null));
 
+    /// <summary>
+    /// Gets the current content (view) displayed in the region from the given host.
+    /// </summary>
+    /// <param name="obj">The region host element.</param>
+    /// <returns>The current view instance, or null.</returns>
     public static object GetCurrentContent(DependencyObject obj)
     {
         return obj.GetValue(CurrentContentProperty);
     }
 
+    /// <summary>
+    /// Sets the current content on the host (used by the library; can be used for binding or custom adapters).
+    /// </summary>
+    /// <param name="obj">The region host element.</param>
+    /// <param name="value">The view to display.</param>
     public static void SetCurrentContent(DependencyObject obj, object value)
     {
         obj.SetValue(CurrentContentProperty, value);
@@ -152,11 +183,21 @@ public static class ObservableRegion
         typeof(ObservableRegion),
         new PropertyMetadata(null));
 
+    /// <summary>
+    /// Gets the region context value from the given element.
+    /// </summary>
+    /// <param name="obj">The element.</param>
+    /// <returns>The stored context object, or null.</returns>
     public static object GetRegionContext(DependencyObject obj)
     {
         return obj.GetValue(RegionContextProperty);
     }
 
+    /// <summary>
+    /// Sets the region context on the given element (arbitrary data; no change notifications).
+    /// </summary>
+    /// <param name="obj">The element.</param>
+    /// <param name="value">The context value.</param>
     public static void SetRegionContext(DependencyObject obj, object value)
     {
         obj.SetValue(RegionContextProperty, value);

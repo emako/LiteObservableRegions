@@ -5,16 +5,22 @@ using System.Linq;
 namespace LiteObservableRegions;
 
 /// <summary>
-/// Parses region URIs: region://RegionName/TargetName?param1=value1&amp;param2=value2
+/// Parses and builds region URIs. Format: <c>region://RegionName/TargetName?param1=value1&amp;param2=value2</c>.
+/// Region name is the authority (host); target name is the first path segment; query is optional.
 /// </summary>
 public static class RegionUriParser
 {
+    /// <summary>
+    /// The URI scheme for region URIs ("region").
+    /// </summary>
     public const string Scheme = "region";
 
     /// <summary>
     /// Normalizes region name: if value starts with "region://", strips that prefix and returns the rest; otherwise returns value as-is.
-    /// Used by RegisterRegion and XAML so that both C# and XAML can pass "region://MainGridRegion" or "MainGridRegion".
+    /// Used by <see cref="IRegionManager.RegisterRegion"/> and XAML so that both C# and XAML can pass "region://MainGridRegion" or "MainGridRegion".
     /// </summary>
+    /// <param name="value">The raw region name or URI string.</param>
+    /// <returns>The region name without the scheme prefix, or the original value.</returns>
     public static string NormalizeRegionName(string value)
     {
         if (string.IsNullOrEmpty(value))
@@ -26,9 +32,14 @@ public static class RegionUriParser
     }
 
     /// <summary>
-    /// Tries to parse a region URI. Format: region://RegionName/TargetName?query
-    /// Path is /TargetName (first segment after host is the target).
+    /// Tries to parse a region URI. Format: region://RegionName/TargetName?query.
+    /// The first path segment is the target name. Region name casing is preserved from the original string.
     /// </summary>
+    /// <param name="uri">The URI to parse.</param>
+    /// <param name="regionName">The region name (authority).</param>
+    /// <param name="targetName">The target name (first path segment).</param>
+    /// <param name="parameters">Parsed query parameters (empty if no query).</param>
+    /// <returns>True if the URI has scheme "region" and a non-empty region name and target name; otherwise false.</returns>
     public static bool TryParse(Uri uri, out string regionName, out string targetName, out IReadOnlyDictionary<string, string> parameters)
     {
         regionName = null!;
@@ -78,8 +89,10 @@ public static class RegionUriParser
     }
 
     /// <summary>
-    /// Parses query string (e.g. ?a=1&amp;b=2) into a dictionary.
+    /// Parses query string (e.g. ?a=1&amp;b=2) into a dictionary. Keys are compared case-insensitively.
     /// </summary>
+    /// <param name="query">The query string (with or without leading '?').</param>
+    /// <returns>Dictionary of parameter names to values; empty if query is null or whitespace.</returns>
     public static IReadOnlyDictionary<string, string> ParseQuery(string query)
     {
         Dictionary<string, string> dict = new(StringComparer.OrdinalIgnoreCase);
@@ -104,6 +117,11 @@ public static class RegionUriParser
     /// <summary>
     /// Builds a region URI from region name, target name and optional query parameters.
     /// </summary>
+    /// <param name="regionName">The region name (must not be null or empty).</param>
+    /// <param name="targetName">The target name (must not be null or empty).</param>
+    /// <param name="parameters">Optional query parameters; can be null or empty.</param>
+    /// <returns>An absolute URI with scheme "region".</returns>
+    /// <exception cref="ArgumentNullException">regionName or targetName is null or empty.</exception>
     public static Uri BuildUri(string regionName, string targetName, IReadOnlyDictionary<string, string> parameters = null)
     {
         if (string.IsNullOrEmpty(regionName)) throw new ArgumentNullException(nameof(regionName));

@@ -10,6 +10,14 @@ using System.Windows;
 
 namespace LiteObservableRegions;
 
+/// <summary>
+/// Manages region registration (from XAML or code) and per-region navigation (navigate, redirect, back, forward).
+/// Resolves views from named views (child elements with <see cref="ObservableRegion.ViewName"/>) or from DI via <see cref="IRegionViewRegistry"/>.
+/// </summary>
+/// <param name="rootProvider">The root service provider used to resolve views and optional <see cref="IRegionHostContentAdapter"/>.</param>
+/// <param name="registry">The view registry (target name to type and lifetime).</param>
+/// <param name="contentAdapter">Optional. How to display content in the host; defaults to <see cref="DefaultRegionHostContentAdapter"/>.</param>
+/// <param name="onRegionChanging">Optional. Invoked before each navigation (Navigate, Redirect, GoBack, GoForward); used to raise <see cref="WeakReferenceRegionHub.ObservableRegionChanged"/> and allow cancellation.</param>
 public sealed class RegionManager(
     IServiceProvider rootProvider,
     IRegionViewRegistry registry,
@@ -25,10 +33,14 @@ public sealed class RegionManager(
     private readonly Action<RegionChangedEventArgs> _onRegionChanging = onRegionChanging;
 
     /// <summary>
-    /// All registered regions (region name -> state).
+    /// All registered regions (region name -> state). Use for direct access to host, stacks, named views, scope.
     /// </summary>
     public Dictionary<string, RegionState> Regions => _regions;
 
+    /// <inheritdoc />
+    /// <param name="regionName">Region name; accepts "region://Name" or "Name" (normalized).</param>
+    /// <param name="host">The host element (must be a <see cref="DependencyObject"/>). When it is a <see cref="FrameworkElement"/>, unload unregisters the region.</param>
+    /// <exception cref="ArgumentException">host is not a DependencyObject.</exception>
     public void RegisterRegion(string regionName, object host)
     {
         if (regionName == null) throw new ArgumentNullException(nameof(regionName));
@@ -60,16 +72,21 @@ public sealed class RegionManager(
         }
     }
 
+    /// <inheritdoc />
+    /// <remarks>If the URI equals the current entry's URI, no operation is performed (no stack or content change).</remarks>
     public void Navigate(Uri uri)
     {
         PerformNavigation(uri, pushBack: true, clearForward: true);
     }
 
+    /// <inheritdoc />
     public void Redirect(Uri uri)
     {
         PerformNavigation(uri, pushBack: false, clearForward: true);
     }
 
+    /// <inheritdoc />
+    /// <param name="regionName">The region name (case-insensitive).</param>
     public void GoBack(string regionName)
     {
         if (!_regions.TryGetValue(regionName, out RegionState state))
@@ -101,6 +118,8 @@ public sealed class RegionManager(
         InvokeNavigatedTo(previousView, previous.Context);
     }
 
+    /// <inheritdoc />
+    /// <param name="regionName">The region name (case-insensitive).</param>
     public void GoForward(string regionName)
     {
         if (!_regions.TryGetValue(regionName, out RegionState state))
@@ -132,16 +151,25 @@ public sealed class RegionManager(
         InvokeNavigatedTo(nextView, next.Context);
     }
 
+    /// <inheritdoc />
+    /// <param name="regionName">The region name (case-insensitive).</param>
+    /// <returns>True if the region has at least one entry on the back stack.</returns>
     public bool CanGoBack(string regionName)
     {
         return _regions.TryGetValue(regionName, out RegionState state) && state.BackStack.Count > 0;
     }
 
+    /// <inheritdoc />
+    /// <param name="regionName">The region name (case-insensitive).</param>
+    /// <returns>True if the region has at least one entry on the forward stack.</returns>
     public bool CanGoForward(string regionName)
     {
         return _regions.TryGetValue(regionName, out RegionState state) && state.ForwardStack.Count > 0;
     }
 
+    /// <inheritdoc />
+    /// <param name="regionName">The region name (case-insensitive).</param>
+    /// <returns>A read-only view of the region, or null if not registered.</returns>
     public IRegion GetRegion(string regionName)
     {
         if (string.IsNullOrEmpty(regionName))
@@ -151,6 +179,11 @@ public sealed class RegionManager(
         return new RegionView(this, regionName);
     }
 
+    /// <inheritdoc />
+    /// <param name="regionName">The region name (case-insensitive). Must already be registered.</param>
+    /// <param name="viewName">The target name used when navigating to this view.</param>
+    /// <param name="view">The view instance. If it is a <see cref="FrameworkElement"/>, unload removes this named view.</param>
+    /// <remarks>If the region is not registered, this method does nothing. Re-registering the same viewName overwrites the previous view.</remarks>
     public void RegisterNamedView(string regionName, string viewName, object view)
     {
         if (regionName == null) throw new ArgumentNullException(nameof(regionName));
@@ -176,6 +209,8 @@ public sealed class RegionManager(
         }
     }
 
+    /// <inheritdoc />
+    /// <remarks>Does not unregister regions or clear navigation stacks.</remarks>
     public void Clear()
     {
         foreach (RegionState state in _regions.Values)
@@ -183,6 +218,9 @@ public sealed class RegionManager(
         _singletonCache.Clear();
     }
 
+    /// <summary>
+    /// Read-only view of a region returned by <see cref="GetRegion"/>.
+    /// </summary>
     private sealed class RegionView : IRegion
     {
         private readonly RegionManager _manager;

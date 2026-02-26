@@ -13,8 +13,11 @@ namespace LiteObservableRegions;
 public static class RegionServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds region view registry and configures it. Call this, then register <see cref="IRegionManager"/>.
+    /// Adds region view registry and configures it. Call this, then register <see cref="IRegionManager"/> manually if you need custom constructor parameters.
     /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configure">Action to register view types (e.g. reg.AddView&lt;PageA&gt;("ViewA", ServiceLifetime.Scoped)).</param>
+    /// <returns>The same <paramref name="services"/> for chaining.</returns>
     /// <example>
     /// services.AddRegionViews(reg => {
     ///   reg.AddView&lt;PageA&gt;("GridA", ServiceLifetime.Scoped);
@@ -35,9 +38,12 @@ public static class RegionServiceCollectionExtensions
 
     /// <summary>
     /// Registers region views and <see cref="IRegionManager"/>.
-    /// Convenience method that calls AddRegionViews and adds IRegionManager.
-    /// Register <see cref="IRegionHostContentAdapter"/> before this to customize how view is displayed in the host.
+    /// Convenience method that calls <see cref="AddRegionViews"/> and adds <see cref="IRegionManager"/> with optional <see cref="IRegionHostContentAdapter"/> and region-changing callback.
+    /// Register <see cref="IRegionHostContentAdapter"/> before this to customize how the view is displayed in the host.
     /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configure">Action to register view types.</param>
+    /// <returns>The same <paramref name="services"/> for chaining.</returns>
     public static IServiceCollection AddObservableRegions(this IServiceCollection services, Action<IRegionViewRegistry> configure)
     {
         services.AddRegionViews(configure);

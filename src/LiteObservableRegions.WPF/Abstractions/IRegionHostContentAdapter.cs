@@ -11,5 +11,7 @@ public interface IRegionHostContentAdapter
     /// <summary>
     /// Displays the given content in the host (e.g. set ContentControl.Content or attach to host).
     /// </summary>
+    /// <param name="host">The region host element (DependencyObject with RegionName).</param>
+    /// <param name="content">The view to display (typically a UIElement).</param>
     public void SetContent(DependencyObject host, object content);
 }

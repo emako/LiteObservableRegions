@@ -14,8 +14,11 @@ internal class RegionServiceProvider
     public IServiceProvider Current { get; set; }
 
     /// <summary>
-    /// Gets a required service.
+    /// Gets a required service. Throws if the provider is not set or the service is not registered.
     /// </summary>
+    /// <typeparam name="T">The service type.</typeparam>
+    /// <returns>The service instance.</returns>
+    /// <exception cref="InvalidOperationException">Current is null or the service was not registered.</exception>
     public T GetRequiredService<T>() where T : notnull
     {
         if (Current == null)
@@ -25,8 +28,10 @@ internal class RegionServiceProvider
     }
 
     /// <summary>
-    /// Gets a service, or null.
+    /// Gets a service, or null if the provider is not set or the service is not registered.
     /// </summary>
+    /// <typeparam name="T">The service type.</typeparam>
+    /// <returns>The service instance, or default(T) if not available.</returns>
     public T GetService<T>()
     {
         if (Current == null)
