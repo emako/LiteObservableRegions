@@ -1,3 +1,4 @@
+using LiteObservableRegions.Abstractions;
 using System.Windows;
 
 namespace LiteObservableRegions.WPF.Test;

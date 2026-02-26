@@ -2,7 +2,7 @@ using System.Windows.Controls;
 
 namespace LiteObservableRegions.WPF.Test.Views;
 
-public partial class PageA : UserControl, LiteObservableRegions.INavigationAware
+public partial class PageA : UserControl, LiteObservableRegions.Abstractions.INavigationAware
 {
     public string Datetime { get; set; }
 

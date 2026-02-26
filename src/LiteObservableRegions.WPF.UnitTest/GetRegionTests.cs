@@ -1,3 +1,4 @@
+using LiteObservableRegions.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 

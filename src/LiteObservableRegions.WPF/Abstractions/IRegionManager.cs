@@ -1,4 +1,4 @@
-namespace LiteObservableRegions;
+namespace LiteObservableRegions.Abstractions;
 
 /// <summary>
 /// Manages region registration (from XAML) and delegates navigation to per-region stacks.

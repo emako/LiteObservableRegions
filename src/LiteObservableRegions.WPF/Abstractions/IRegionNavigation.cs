@@ -1,6 +1,6 @@
 using System;
 
-namespace LiteObservableRegions;
+namespace LiteObservableRegions.Abstractions;
 
 /// <summary>
 /// Navigation operations for region-based navigation (history and redirect).

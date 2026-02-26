@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace LiteObservableRegions;
+namespace LiteObservableRegions.Abstractions;
 
 /// <summary>
 /// Strategy for how to display the resolved view in a region host.

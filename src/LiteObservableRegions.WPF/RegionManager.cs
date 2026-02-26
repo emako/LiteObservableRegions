@@ -1,45 +1,22 @@
+using LiteObservableRegions.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Windows;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable CA1510 // Use 'ArgumentNullException.ThrowIfNull' instead of explicitly throwing a new exception instance
+
 namespace LiteObservableRegions;
 
-internal sealed class RegionState
+public sealed class RegionManager(IServiceProvider rootProvider, IRegionViewRegistry registry, IRegionHostContentAdapter contentAdapter = null) : IRegionManager
 {
-    public DependencyObject Host { get; }
-    public Stack<NavigationEntry> BackStack { get; } = new Stack<NavigationEntry>();
-    public Stack<NavigationEntry> ForwardStack { get; } = new Stack<NavigationEntry>();
-    public NavigationEntry CurrentEntry { get; set; }
-    public IServiceScope Scope { get; set; }
-
-    public RegionState(DependencyObject host)
-    {
-        Host = host ?? throw new ArgumentNullException(nameof(host));
-    }
-
-    public void DisposeScope()
-    {
-        Scope?.Dispose();
-        Scope = null;
-    }
-}
-
-public sealed class RegionManager : IRegionManager
-{
-    private readonly IServiceProvider _rootProvider;
-    private readonly IRegionViewRegistry _registry;
+    private readonly IServiceProvider _rootProvider = rootProvider ?? throw new ArgumentNullException(nameof(rootProvider));
+    private readonly IRegionViewRegistry _registry = registry ?? throw new ArgumentNullException(nameof(registry));
     private readonly Dictionary<string, RegionState> _regions = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, object> _singletonCache = new(StringComparer.OrdinalIgnoreCase);
 
-    private readonly IRegionHostContentAdapter _contentAdapter;
-
-    public RegionManager(IServiceProvider rootProvider, IRegionViewRegistry registry, IRegionHostContentAdapter contentAdapter = null)
-    {
-        _rootProvider = rootProvider ?? throw new ArgumentNullException(nameof(rootProvider));
-        _registry = registry ?? throw new ArgumentNullException(nameof(registry));
-        _contentAdapter = contentAdapter ?? new DefaultRegionHostContentAdapter();
-    }
+    private readonly IRegionHostContentAdapter _contentAdapter = contentAdapter ?? new DefaultRegionHostContentAdapter();
 
     public void RegisterRegion(string regionName, object host)
     {
@@ -284,3 +261,6 @@ public sealed class RegionManager : IRegionManager
             vm.OnNavigatedTo(context);
     }
 }
+
+#pragma warning restore CA1510 // Use 'ArgumentNullException.ThrowIfNull' instead of explicitly throwing a new exception instance
+#pragma warning restore IDE0079 // Remove unnecessary suppression

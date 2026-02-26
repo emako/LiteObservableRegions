@@ -1,4 +1,4 @@
-namespace LiteObservableRegions;
+namespace LiteObservableRegions.Abstractions;
 
 /// <summary>
 /// Optional interface for views or view-models to receive navigation lifecycle callbacks.

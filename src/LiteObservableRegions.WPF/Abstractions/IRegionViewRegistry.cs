@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace LiteObservableRegions;
+namespace LiteObservableRegions.Abstractions;
 
 /// <summary>
 /// Registry of region target names to view types and lifetimes.

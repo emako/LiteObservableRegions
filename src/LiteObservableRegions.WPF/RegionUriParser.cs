@@ -44,8 +44,8 @@ public static class RegionUriParser
             return false;
 
         // First path segment (without leading slash) as target name
-        string path = uri.AbsolutePath?.TrimStart('/') ?? "";
-        targetName = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "";
+        string path = uri.AbsolutePath?.TrimStart('/') ?? string.Empty;
+        targetName = path.Split(['/'], StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "";
         if (string.IsNullOrEmpty(targetName))
             return false;
 
@@ -67,7 +67,7 @@ public static class RegionUriParser
             int eq = pair.IndexOf('=');
             if (eq < 0)
             {
-                dict[Uri.UnescapeDataString(pair)] = "";
+                dict[Uri.UnescapeDataString(pair)] = string.Empty;
                 continue;
             }
             string key = Uri.UnescapeDataString(pair.Substring(0, eq));
@@ -85,7 +85,7 @@ public static class RegionUriParser
         if (string.IsNullOrEmpty(regionName)) throw new ArgumentNullException(nameof(regionName));
         if (string.IsNullOrEmpty(targetName)) throw new ArgumentNullException(nameof(targetName));
         string path = "/" + targetName;
-        string query = "";
+        string query = string.Empty;
         if (parameters != null && parameters.Count > 0)
             query = "?" + string.Join("&", parameters.Select(kv => Uri.EscapeDataString(kv.Key) + "=" + Uri.EscapeDataString(kv.Value ?? "")));
         return new Uri(Scheme + "://" + regionName + path + query, UriKind.Absolute);

@@ -1,6 +1,6 @@
 using System;
 
-namespace LiteObservableRegions;
+namespace LiteObservableRegions.Abstractions;
 
 /// <summary>
 /// Read-only view of a registered region (host, current URI, navigation state).
