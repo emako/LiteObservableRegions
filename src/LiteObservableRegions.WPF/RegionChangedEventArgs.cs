@@ -47,6 +47,6 @@ public sealed class RegionChangedEventArgs(string regionName, Uri fromUri, Uri t
 
     public override string ToString()
     {
-        return $"{Mode} {RegionName}: {FromTargetName} -> {ToTargetName} ({ToUri})";
+        return $"{Mode} {RegionName}: {FromTargetName} -> {ToTargetName} ({ToUri?.OriginalString ?? ToUri?.ToString()})";
     }
 }

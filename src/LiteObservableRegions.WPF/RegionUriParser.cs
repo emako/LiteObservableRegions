@@ -38,8 +38,12 @@ public static class RegionUriParser
         if (uri == null || !string.Equals(uri.Scheme, Scheme, StringComparison.OrdinalIgnoreCase))
             return false;
 
-        // Host as region name (e.g. region://MainRegion/PageA -> host = MainRegion)
-        regionName = uri.Host;
+        // Extract region name (host) from original string to preserve casing; Uri.Host is lowercased per RFC 3986.
+        string authority = GetHostFromOriginalString(uri);
+        if (!string.IsNullOrEmpty(authority))
+            regionName = authority;
+        else
+            regionName = uri.Host;
         if (string.IsNullOrEmpty(regionName))
             return false;
 
@@ -51,6 +55,26 @@ public static class RegionUriParser
 
         parameters = ParseQuery(uri.Query);
         return true;
+    }
+
+    /// <summary>
+    /// Gets the host (authority) segment from the URI's original string to preserve casing.
+    /// Uri.Host is normalized to lowercase by .NET; for region names we keep original casing.
+    /// </summary>
+    private static string GetHostFromOriginalString(Uri uri)
+    {
+        string s = uri.OriginalString ?? uri.ToString();
+        string prefix = Scheme + "://";
+        if (s.Length < prefix.Length || !s.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return null;
+        int start = prefix.Length;
+        int slash = s.IndexOf('/', start);
+        int query = s.IndexOf('?', start);
+        int end = s.Length;
+        if (slash >= 0) end = slash;
+        if (query >= 0 && query < end) end = query;
+        if (end <= start) return null;
+        return s.Substring(start, end - start).Trim();
     }
 
     /// <summary>
