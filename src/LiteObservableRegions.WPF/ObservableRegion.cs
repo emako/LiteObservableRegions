@@ -17,15 +17,6 @@ public static class ObservableRegion
         typeof(ObservableRegion),
         new PropertyMetadata(null, OnRegionNameChanged));
 
-    /// <summary>
-    /// Current content (view) shown in the region. Set by RegionManager; can be bound.
-    /// </summary>
-    public static readonly DependencyProperty CurrentContentProperty = DependencyProperty.RegisterAttached(
-        "CurrentContent",
-        typeof(object),
-        typeof(ObservableRegion),
-        new PropertyMetadata(null));
-
     public static string GetRegionName(DependencyObject obj)
     {
         return (string)obj.GetValue(RegionNameProperty);
@@ -34,16 +25,6 @@ public static class ObservableRegion
     public static void SetRegionName(DependencyObject obj, string value)
     {
         obj.SetValue(RegionNameProperty, value);
-    }
-
-    public static object GetCurrentContent(DependencyObject obj)
-    {
-        return obj.GetValue(CurrentContentProperty);
-    }
-
-    public static void SetCurrentContent(DependencyObject obj, object value)
-    {
-        obj.SetValue(CurrentContentProperty, value);
     }
 
     private static void OnRegionNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -72,5 +53,24 @@ public static class ObservableRegion
         {
             // RegionServiceProvider may not be set yet (e.g. during XAML load before app startup).
         }
+    }
+
+    /// <summary>
+    /// Current content (view) shown in the region. Set by RegionManager; can be bound.
+    /// </summary>
+    public static readonly DependencyProperty CurrentContentProperty = DependencyProperty.RegisterAttached(
+        "CurrentContent",
+        typeof(object),
+        typeof(ObservableRegion),
+        new PropertyMetadata(null));
+
+    public static object GetCurrentContent(DependencyObject obj)
+    {
+        return obj.GetValue(CurrentContentProperty);
+    }
+
+    public static void SetCurrentContent(DependencyObject obj, object value)
+    {
+        obj.SetValue(CurrentContentProperty, value);
     }
 }
