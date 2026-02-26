@@ -1,8 +1,9 @@
+using LiteObservableRegions.Abstractions;
 using System.Windows.Controls;
 
 namespace LiteObservableRegions.WPF.Test.Views;
 
-public partial class PageA : UserControl, LiteObservableRegions.Abstractions.INavigationAware
+public partial class PageA : UserControl, INavigationAware
 {
     public string Datetime { get; set; }
 
@@ -13,12 +14,12 @@ public partial class PageA : UserControl, LiteObservableRegions.Abstractions.INa
         InitializeComponent();
     }
 
-    public void OnNavigatedFrom(LiteObservableRegions.NavigationContext context)
+    public void OnNavigatedFrom(NavigationContext context)
     {
         // Optional: use context.Parameters, context.ToUri, etc.
     }
 
-    public void OnNavigatedTo(LiteObservableRegions.NavigationContext context)
+    public void OnNavigatedTo(NavigationContext context)
     {
         // Optional: use context.Parameters
     }
