@@ -1,3 +1,5 @@
+[![NuGet](https://img.shields.io/nuget/v/LiteObservableRegions.svg)](https://nuget.org/packages/LiteObservableRegions) [![Actions](https://github.com/emako/LiteObservableRegions/actions/workflows/library.nuget.yml/badge.svg)](https://github.com/emako/LiteObservableRegions/actions/workflows/library.nuget.yml) 
+
 # LiteObservableRegions
 
 A lightweight, Prism-like region and navigation library for WPF. Define regions in XAML, navigate by URI, and resolve views from Microsoft.Extensions.DependencyInjection or from named host children.
