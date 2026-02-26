@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace LiteObservableRegions.Abstractions;
@@ -39,6 +40,13 @@ public interface IRegionManager : IRegionNavigation
     /// Clears all named views (per region) and the singleton view cache. Does not unregister regions or navigation stacks.
     /// </summary>
     public void Clear();
+
+    /// <summary>
+    /// Resolves a view by URI.
+    /// </summary>
+    /// <param name="uri">The URI of the view.</param>
+    /// <returns>The view instance, or null.</returns>
+    public object ResolveView(Uri uri);
 
     /// <summary>
     /// Resolves a named view for a region.

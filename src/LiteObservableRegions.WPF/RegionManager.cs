@@ -264,6 +264,14 @@ public sealed class RegionManager(
         InvokeNavigatedTo(view, context);
     }
 
+    public object ResolveView(Uri uri)
+    {
+        if (!RegionUriParser.TryParse(uri, out string regionName, out string targetName, out _))
+            throw new ArgumentException("Invalid region URI. Expected format: region://RegionName/TargetName?query", nameof(uri));
+
+        return ResolveView(regionName, targetName);
+    }
+
     public object ResolveView(string regionName, string targetName)
     {
         if (_regions.TryGetValue(regionName, out RegionState state) &&
