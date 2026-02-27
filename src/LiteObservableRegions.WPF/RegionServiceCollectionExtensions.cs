@@ -1,6 +1,6 @@
-using System;
 using LiteObservableRegions.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1510 // Use 'ArgumentNullException.ThrowIfNull' instead of explicitly throwing a new exception instance
