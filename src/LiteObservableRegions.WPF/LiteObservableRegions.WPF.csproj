@@ -10,9 +10,9 @@
 		<SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
 		<RootNamespace>LiteObservableRegions</RootNamespace>
 		<LangVersion>preview</LangVersion>
-		<AssemblyVersion>1.1.0</AssemblyVersion>
-		<FileVersion>1.1.0</FileVersion>
-		<Version>$(VersionPrefix)1.1.0</Version>
+		<AssemblyVersion>1.1.1</AssemblyVersion>
+		<FileVersion>1.1.1</FileVersion>
+		<Version>$(VersionPrefix)1.1.1</Version>
 		<Authors>ema</Authors>
 		<Company>ema</Company>
 		<Description>A lightweight, Prism-like region and navigation library for WPF. Define regions in XAML, navigate by URI, and resolve views from Microsoft.Extensions.DependencyInjection or from named host children.</Description>
