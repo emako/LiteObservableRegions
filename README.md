@@ -2,9 +2,8 @@
 
 # LiteObservableRegions
 
-A lightweight, Prism-like region and navigation library for WPF. Define regions in XAML, navigate by URI, and resolve views from Microsoft.Extensions.DependencyInjection or from named host children.
+A lightweight, Prism-like region and navigation library for WPF. Define regions in XAML, navigate by URI, and resolve views from `Microsoft.Extensions.DependencyInjection` or from named host children.
 
----
 
 ## Features
 
@@ -20,8 +19,6 @@ A lightweight, Prism-like region and navigation library for WPF. Define regions 
 - **Region change notification** — Subscribe to `WeakReferenceRegionHub.ObservableRegionChanged`; raised **before** content changes (before OnNavigatedFrom/OnNavigatedTo). Args: RegionName, FromUri, ToUri, FromTargetName, ToTargetName, `NavigationMode` (Navigate, Redirect, GoBack, GoForward), and `Cancel` to abort the navigation.
 - **Lifetime** — Region host: when a `FrameworkElement` with `RegionName` is unloaded, the region is unregistered and its scope disposed. Named view: when a `FrameworkElement` with `ViewName` is unloaded, that named view is removed from the region.
 
----
-
 ## Installation
 
 ```bash
@@ -29,8 +26,6 @@ dotnet add package LiteObservableRegions
 ```
 
 **Targets:** .NET Framework 4.6.2, 4.7.2, 4.8, 4.8.1; .NET 5–10 (Windows, WPF). Single package, multi-targeted.
-
----
 
 ## Quick start
 
@@ -58,8 +53,8 @@ WeakReferenceRegionHub.ServiceProvider = provider;
 The **host** is the element that receives the active view (e.g. a `ContentControl` or a `Grid`). Set `RegionName` on that element. Accepts `"region://Name"` or `"Name"` (normalized by the library).
 
 ```xml
-<ContentControl xmlns:r="clr-namespace:LiteObservableRegions;assembly=LiteObservableRegions"
-               r:ObservableRegion.RegionName="MainRegion" />
+<ContentControl xmlns:r="http://schemas.github.com/liteobservableregions/2026/xaml"
+	r:ObservableRegion.RegionName="MainRegion" />
 ```
 
 Or use a Grid as host — content is set on the Grid via `ObservableRegion.CurrentContent`; bind a child (e.g. `ContentPresenter`) to that attached property on the ancestor, or use a single ContentControl as host instead.
@@ -110,8 +105,6 @@ WeakReferenceRegionHub.ObservableRegionChanged += (sender, e) =>
 
 `e.Mode` is `NavigationMode`: `Navigate`, `Redirect`, `GoBack`, `GoForward`.
 
----
-
 ## Region URIs
 
 - **Format:** `region://RegionName/TargetName?param1=value1&param2=value2`
@@ -129,8 +122,6 @@ Helpers:
 
 For navigation you must include a target: `region://MainRegion/View1`. Region name only (`region://MainRegion`) is valid for `RegionName` in XAML; the library normalizes it.
 
----
-
 ## Attached properties (`ObservableRegion`)
 
 | Property         | Type   | Description |
@@ -140,8 +131,6 @@ For navigation you must include a target: `region://MainRegion/View1`. Region na
 | **CurrentContent** | object | Set by the library; current view in the region. Can be bound. |
 | **RegionContext**  | object | Arbitrary data; no change handling. |
 
----
-
 ## View resolution order
 
 When navigating to a target name in a region:
@@ -150,8 +139,6 @@ When navigating to a target name in a region:
 2. **DI** — Otherwise resolved from `IRegionViewRegistry` and `IServiceProvider`: Transient (new each time), Scoped (per-region scope), Singleton (cached per region+target).
 
 Register view types with `AddObservableRegions(reg => reg.AddView<T>("TargetName", ServiceLifetime.Scoped))` or, for registry only, `AddRegionViews(reg => ...)` then register `IRegionManager` yourself.
-
----
 
 ## Customizing how content is displayed
 
@@ -163,8 +150,6 @@ Implement `IRegionHostContentAdapter` (single method: `SetContent(DependencyObje
 - `Decorator` → set `Child`
 - Any other host → `ObservableRegion.SetCurrentContent(host, content)`
 
----
-
 ## Duplicate names and cleanup
 
 - **Same RegionName** — Registering again replaces the previous region: existing scope is disposed, new host is the only one for that name.
@@ -172,14 +157,10 @@ Implement `IRegionHostContentAdapter` (single method: `SetContent(DependencyObje
 
 **Clear:** `WeakReferenceRegionHub.Clear()` (or `IRegionManager.Clear()`) clears all named views and the singleton view cache; does **not** unregister regions or navigation stacks.
 
----
-
 ## API overview
 
 - **LiteObservableRegions:** `WeakReferenceRegionHub` (ServiceProvider, RegionManager, ObservableRegionChanged, Clear), `ObservableRegion`, `RegionUriParser`, `RegionChangedEventArgs`, `NavigationMode`, `NavigationContext`, `DefaultRegionHostContentAdapter`, `RegionServiceCollectionExtensions` (AddRegionViews, AddObservableRegions), `RegionManager`, `RegionState`, `ViewRegistration`, `NavigationEntry`.
 - **LiteObservableRegions.Abstractions:** `IRegionManager`, `IRegionNavigation`, `IRegion`, `IRegionViewRegistry`, `IRegionHostContentAdapter`, `INavigationAware`.
-
----
 
 ## License
 
