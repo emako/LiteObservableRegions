@@ -41,14 +41,4 @@ public sealed class RegionState(DependencyObject host)
     /// View name -> view instance (weak). Filled by <see cref="IRegionManager.RegisterNamedView"/> (e.g. from <see cref="ObservableRegion.ViewName"/>).
     /// </summary>
     public Dictionary<string, WeakReference> NamedViews { get; } = new Dictionary<string, WeakReference>(StringComparer.OrdinalIgnoreCase);
-
-    /// <summary>
-    /// Disposes the scoped service scope and sets <see cref="Scope"/> to null.
-    /// Called when the region is replaced or the host is unloaded.
-    /// </summary>
-    public void DisposeScope()
-    {
-        Scope?.Dispose();
-        Scope = null;
-    }
 }

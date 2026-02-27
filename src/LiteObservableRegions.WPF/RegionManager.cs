@@ -54,7 +54,7 @@ public sealed class RegionManager(
         if (host == null)
             throw new ArgumentNullException(nameof(host));
 
-        if (host is not DependencyObject depObj)
+        if (host is not DependencyObject view)
             throw new ArgumentException("Region host must be a DependencyObject.", nameof(host));
 
         if (_regions.TryGetValue(regionName, out RegionState existing))
@@ -62,19 +62,22 @@ public sealed class RegionManager(
             existing.DisposeScope();
         }
 
-        RegionState state = new(depObj);
+        RegionState state = new(view);
         _regions[regionName] = state;
 
-        if (depObj is FrameworkElement fe)
+        if (view is IRegionScope scope && scope.DisposeRegionScopeOnUnload)
         {
-            fe.Unloaded += (s, e) =>
+            if (view is FrameworkElement fe)
             {
-                if (_regions.TryGetValue(regionName, out RegionState st) && st.Host == depObj)
+                fe.Unloaded += (s, e) =>
                 {
-                    _regions.Remove(regionName);
-                    st.DisposeScope();
-                }
-            };
+                    if (_regions.TryGetValue(regionName, out RegionState st) && st.Host == view)
+                    {
+                        _regions.Remove(regionName);
+                        st.DisposeScope();
+                    }
+                };
+            }
         }
     }
 
@@ -218,15 +221,18 @@ public sealed class RegionManager(
 
         state.NamedViews[viewName] = new WeakReference(view);
 
-        if (view is FrameworkElement fe)
+        if (view is IRegionScope scope && scope.DisposeRegionScopeOnUnload)
         {
-            fe.Unloaded += (s, e) =>
+            if (view is FrameworkElement fe)
             {
-                if (_regions.TryGetValue(regionName, out RegionState st) && st.NamedViews.TryGetValue(viewName, out WeakReference wr) && wr.Target == view)
+                fe.Unloaded += (s, e) =>
                 {
-                    st.NamedViews.Remove(viewName);
-                }
-            };
+                    if (_regions.TryGetValue(regionName, out RegionState st) && st.NamedViews.TryGetValue(viewName, out WeakReference wr) && wr.Target == view)
+                    {
+                        st.NamedViews.Remove(viewName);
+                    }
+                };
+            }
         }
     }
 
