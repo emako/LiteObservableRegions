@@ -9,13 +9,9 @@
     xmlns:view="clr-namespace:LiteObservableRegions.WPF.Test.Views"
     Title="LiteObservableRegions.WPF.Test"
     Width="860"
-    Height="450"
+    Height="600"
     mc:Ignorable="d">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <Grid RowDefinitions="Auto,*">
         <StackPanel
             Margin="0,20,0,10"
             HorizontalAlignment="Center"
@@ -66,13 +62,9 @@
         <!--  DependencyInjection View  -->
         <ContentControl Grid.Row="1" r:ObservableRegion.RegionName="region://MainGridRegion" />
         <!--  Named View  -->
-        <!--<Grid Grid.Row="1" r:ObservableRegion.RegionName="region://MainGridRegion">
-            <Grid r:ObservableRegion.ViewName="region://MainGridRegion/GridA">
-                <TextBlock Text="A" />
-            </Grid>
-            <Grid r:ObservableRegion.ViewName="region://MainGridRegion/GridB">
-                <TextBlock Text="B" />
-            </Grid>
-        </Grid>-->
+        <Grid Grid.Row="1" r:ObservableRegion.RegionName="region://MainGridRegion">
+            <view:PageA r:ObservableRegion.ViewName="region://MainGridRegion/GridA" />
+            <view:PageB r:ObservableRegion.ViewName="region://MainGridRegion/GridB" />
+        </Grid>
     </Grid>
 </Window>

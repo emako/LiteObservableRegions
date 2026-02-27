@@ -96,7 +96,7 @@ public sealed class RegionManager(
 
         NavigationEntry current = state.CurrentEntry;
         NavigationEntry previous = state.BackStack.Peek();
-        RegionChangedEventArgs args = new(
+        RegionChangedEventArgs args = new RegionChangedEventArgs(
             regionName,
             current?.Uri,
             previous.Uri,
@@ -129,7 +129,7 @@ public sealed class RegionManager(
 
         NavigationEntry current = state.CurrentEntry;
         NavigationEntry next = state.ForwardStack.Peek();
-        RegionChangedEventArgs args = new(
+        RegionChangedEventArgs args = new RegionChangedEventArgs(
             regionName,
             current?.Uri,
             next.Uri,
@@ -174,7 +174,7 @@ public sealed class RegionManager(
     {
         if (string.IsNullOrEmpty(regionName))
             return null;
-        if (!_regions.TryGetValue(regionName, out _))
+        if (!_regions.TryGetValue(regionName, out RegionState state))
             return null;
         return new RegionView(this, regionName);
     }
@@ -264,6 +264,7 @@ public sealed class RegionManager(
         InvokeNavigatedTo(view, context);
     }
 
+    /// <inheritdoc />
     public object ResolveView(Uri uri)
     {
         if (!RegionUriParser.TryParse(uri, out string regionName, out string targetName, out _))
@@ -272,6 +273,7 @@ public sealed class RegionManager(
         return ResolveView(regionName, targetName);
     }
 
+    /// <inheritdoc />
     public object ResolveView(string regionName, string targetName)
     {
         if (_regions.TryGetValue(regionName, out RegionState state) &&
@@ -334,28 +336,39 @@ public sealed class RegionManager(
 
     private static void InvokeNavigatedFrom(object view, NavigationContext context)
     {
-        if (view == null)
-            return;
-        if (view is INavigationAware aware)
-        {
-            aware.OnNavigatedFrom(context);
-            return;
-        }
-        if (view is FrameworkElement fe && fe.DataContext is INavigationAware vm)
-            vm.OnNavigatedFrom(context);
+        INavigationAware target = GetNavigationAwareTarget(view);
+        target?.OnNavigatedFrom(context);
     }
 
     private static void InvokeNavigatedTo(object view, NavigationContext context)
     {
+        INavigationAware target = GetNavigationAwareTarget(view);
+        target?.OnNavigatedTo(context);
+    }
+
+    /// <summary>
+    /// Gets the object that should receive INavigationAware callbacks: the view itself, its DataContext,
+    /// or the first logical descendant that implements INavigationAware or has DataContext implementing it.
+    /// This allows NamedView containers (e.g. Grid with ViewName) whose child is the actual INavigationAware view to still receive callbacks.
+    /// </summary>
+    private static INavigationAware GetNavigationAwareTarget(object view)
+    {
         if (view == null)
-            return;
+            return null;
         if (view is INavigationAware aware)
+            return aware;
+        if (view is FrameworkElement fe)
         {
-            aware.OnNavigatedTo(context);
-            return;
+            if (fe.DataContext is INavigationAware vm)
+                return vm;
+            foreach (object child in LogicalTreeHelper.GetChildren(fe))
+            {
+                INavigationAware found = GetNavigationAwareTarget(child);
+                if (found != null)
+                    return found;
+            }
         }
-        if (view is FrameworkElement fe && fe.DataContext is INavigationAware vm)
-            vm.OnNavigatedTo(context);
+        return null;
     }
 }
 
