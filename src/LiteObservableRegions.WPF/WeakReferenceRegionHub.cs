@@ -28,16 +28,11 @@ public class WeakReferenceRegionHub
         => _regionServiceProvider.GetRequiredService<IRegionManager>();
 
     /// <summary>
-    /// Raised before a region's content changes (Navigate, Redirect, GoBack, GoForward).
-    /// Subscribe to get detailed context (region name, from/to URI and target names, mode) and optionally cancel by setting <see cref="RegionChangedEventArgs.Cancel"/>.
+    /// Gets the global event notifier for region-related events.
     /// </summary>
-    public static event EventHandler<RegionChangedEventArgs> ObservableRegionChanged;
-
-    /// <summary>
-    /// Called by RegionManager when a region change is about to occur. Invokes <see cref="ObservableRegionChanged"/>.
-    /// </summary>
-    internal static void RaiseRegionChanged(RegionChangedEventArgs e)
-        => ObservableRegionChanged?.Invoke(null, e);
+    /// <remarks>Use this property to subscribe to or raise events related to region changes throughout the
+    /// application. The notifier is shared and thread-safe for concurrent access.</remarks>
+    public static RegionEventNotifier EventNotifier { get; } = new();
 
     /// <summary>
     /// Clears all named views (per region) and the singleton view cache. No-op if the service provider is not set.

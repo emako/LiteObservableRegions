@@ -13,7 +13,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         _regionManager = WeakReferenceRegionHub.RegionManager;
 
-        WeakReferenceRegionHub.ObservableRegionChanged += OnRegionChanged;
+        WeakReferenceRegionHub.EventNotifier.ObservableRegionChanged += OnRegionChanged;
 
         Loaded += (s, e) =>
         {

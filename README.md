@@ -16,7 +16,7 @@ A lightweight, Prism-like region and navigation library for WPF. Define regions 
 - **INavigationAware** — Optional: implement on the view or on the view’s `DataContext`. `OnNavigatedFrom(NavigationContext)` and `OnNavigatedTo(NavigationContext)` receive FromUri, ToUri, Parameters, Mode, RegionName, TargetName; `context.IsRedirect` for Redirect.
 - **Pluggable host adapter** — `IRegionHostContentAdapter.SetContent(host, content)`. Register before `AddObservableRegions` to customize. Default: ContentControl→Content, Frame→Navigate(content), Panel/ItemsControl→add child and toggle visibility when `IsPreferKeepAlive` is true, else clear then add; Decorator→Child; other hosts→`ObservableRegion.CurrentContent`.
 - **Region context** — `ObservableRegion.RegionContext` attached property for arbitrary data; no change notifications.
-- **Region change notification** — Subscribe to `WeakReferenceRegionHub.ObservableRegionChanged`; raised **before** content changes (before OnNavigatedFrom/OnNavigatedTo). Args: RegionName, FromUri, ToUri, FromTargetName, ToTargetName, `NavigationMode` (Navigate, Redirect, GoBack, GoForward), and `Cancel` to abort the navigation.
+- **Region change notification** — Subscribe to `WeakReferenceRegionHub.EventNotifier.ObservableRegionChanged`; raised **before** content changes (before OnNavigatedFrom/OnNavigatedTo). Args: RegionName, FromUri, ToUri, FromTargetName, ToTargetName, `NavigationMode` (Navigate, Redirect, GoBack, GoForward), and `Cancel` to abort the navigation.
 - **Lifetime** — Region host: when a `FrameworkElement` with `RegionName` **implements <see cref="IRegionScope"/>**, Unloaded unregisters the region and disposes its scope; otherwise the region is not removed on Unloaded (avoids “region not found” when the host is in a tab or lazy-loaded). Named view: when a `FrameworkElement` with `ViewName` implements `IRegionScope`, Unloaded removes that named view; otherwise it is not removed.
 
 ## Installation
@@ -92,10 +92,10 @@ Advanced: `manager.Regions` is a `Dictionary<string, RegionState>` (Host, BackSt
 
 ### 4. Region change notification and cancellation
 
-`WeakReferenceRegionHub.ObservableRegionChanged` is raised **before** the region content is updated. Set `e.Cancel = true` to prevent the navigation.
+`WeakReferenceRegionHub.EventNotifier.ObservableRegionChanged` is raised **before** the region content is updated. Set `e.Cancel = true` to prevent the navigation.
 
 ```csharp
-WeakReferenceRegionHub.ObservableRegionChanged += (sender, e) =>
+WeakReferenceRegionHub.EventNotifier.ObservableRegionChanged += (sender, e) =>
 {
     // e.RegionName, e.FromUri, e.ToUri, e.FromTargetName, e.ToTargetName, e.Mode, e.Cancel
     if (someCondition)
@@ -159,7 +159,7 @@ Implement `IRegionHostContentAdapter` (single method: `SetContent(DependencyObje
 
 ## API overview
 
-- **LiteObservableRegions:** `WeakReferenceRegionHub` (ServiceProvider, RegionManager, ObservableRegionChanged, Clear), `ObservableRegion`, `RegionUriParser`, `RegionChangedEventArgs`, `NavigationMode`, `NavigationContext`, `DefaultRegionHostContentAdapter`, `RegionServiceCollectionExtensions` (AddRegionViews, AddObservableRegions), `RegionManager`, `RegionState`, `ViewRegistration`, `NavigationEntry`.
+- **LiteObservableRegions:** `WeakReferenceRegionHub` (ServiceProvider, RegionManager, EventNotifier, Clear), `ObservableRegion`, `RegionUriParser`, `RegionChangedEventArgs`, `NavigationMode`, `NavigationContext`, `DefaultRegionHostContentAdapter`, `RegionServiceCollectionExtensions` (AddRegionViews, AddObservableRegions), `RegionManager`, `RegionState`, `ViewRegistration`, `NavigationEntry`.
 - **LiteObservableRegions.Abstractions:** `IRegionManager`, `IRegionNavigation`, `IRegion`, `IRegionViewRegistry`, `IRegionHostContentAdapter`, `INavigationAware`, `IRegionScope`.
 
 ## License

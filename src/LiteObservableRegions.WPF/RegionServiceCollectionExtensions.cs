@@ -60,7 +60,7 @@ public static class RegionServiceCollectionExtensions
 
     private static void RegionChangedHubCallback(RegionChangedEventArgs e)
     {
-        WeakReferenceRegionHub.RaiseRegionChanged(e);
+        WeakReferenceRegionHub.EventNotifier.RaiseRegionChanged(e);
     }
 }
 

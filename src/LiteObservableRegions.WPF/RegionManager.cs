@@ -17,7 +17,7 @@ namespace LiteObservableRegions;
 /// <param name="rootProvider">The root service provider used to resolve views and optional <see cref="IRegionHostContentAdapter"/>.</param>
 /// <param name="registry">The view registry (target name to type and lifetime).</param>
 /// <param name="contentAdapter">Optional. How to display content in the host; defaults to <see cref="DefaultRegionHostContentAdapter"/>.</param>
-/// <param name="onRegionChanging">Optional. Invoked before each navigation (Navigate, Redirect, GoBack, GoForward); used to raise <see cref="WeakReferenceRegionHub.ObservableRegionChanged"/> and allow cancellation.</param>
+/// <param name="onRegionChanging">Optional. Invoked before each navigation (Navigate, Redirect, GoBack, GoForward); used to raise <see cref="RegionEventNotifier.ObservableRegionChanged"/> and allow cancellation.</param>
 public sealed class RegionManager(
     IServiceProvider rootProvider,
     IRegionViewRegistry registry,
