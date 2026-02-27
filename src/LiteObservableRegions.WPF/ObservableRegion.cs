@@ -72,18 +72,14 @@ public static class ObservableRegion
     private static void OnViewNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         string value = e.NewValue as string;
+
         if (string.IsNullOrEmpty(value))
             return;
+
         if (!Uri.TryCreate(value, UriKind.Absolute, out Uri uri) || !RegionUriParser.TryParse(uri, out string regionName, out string viewName, out _))
             return;
-        if (string.IsNullOrEmpty(viewName))
-            return;
 
-        DependencyObject host = FindRegionHost(d);
-        if (host == null)
-            return;
-        string hostRegionName = RegionUriParser.NormalizeRegionName(GetRegionName(host) ?? string.Empty);
-        if (string.IsNullOrEmpty(hostRegionName) || !string.Equals(hostRegionName, regionName, StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrEmpty(viewName))
             return;
 
         try
@@ -92,29 +88,13 @@ public static class ObservableRegion
             if (provider != null)
             {
                 IRegionManager manager = provider.GetService(typeof(IRegionManager)) as IRegionManager;
-                manager?.RegisterNamedView(hostRegionName, viewName, d);
+                manager?.RegisterNamedView(regionName, viewName, d);
             }
         }
         catch
         {
             // RegionServiceProvider may not be set yet.
         }
-    }
-
-    /// <summary>
-    /// Finds the nearest ancestor that has RegionName set (the region host).
-    /// </summary>
-    private static DependencyObject FindRegionHost(DependencyObject child)
-    {
-        DependencyObject current = child;
-        while (current != null)
-        {
-            string name = GetRegionName(current);
-            if (!string.IsNullOrEmpty(name))
-                return current;
-            current = LogicalTreeHelper.GetParent(current);
-        }
-        return null;
     }
 
     private static void OnRegionNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

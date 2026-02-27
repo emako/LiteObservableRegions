@@ -243,6 +243,7 @@ public sealed class RegionManager(
     {
         if (uri == null)
             throw new ArgumentNullException(nameof(uri));
+
         if (!RegionUriParser.TryParse(uri, out string regionName, out string targetName, out IReadOnlyDictionary<string, string> parameters))
             throw new ArgumentException("Invalid region URI. Expected format: region://RegionName/TargetName?query", nameof(uri));
 
@@ -267,7 +268,9 @@ public sealed class RegionManager(
 
         NavigationContext context = new(fromUri, uri, parameters, mode, regionName, targetName);
 
-        object view = ResolveView(regionName, targetName) ?? throw new InvalidOperationException($"No view registered for target '{targetName}'.");
+        object view = ResolveView(regionName, targetName)
+            ?? throw new InvalidOperationException($"No view registered for target '{targetName}'.");
+
         if (state.CurrentEntry != null)
         {
             object currentView = GetViewFromEntry(regionName, state.CurrentEntry);

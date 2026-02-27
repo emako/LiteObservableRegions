@@ -60,11 +60,11 @@
                 Content="Test..." />
         </StackPanel>
         <!--  DependencyInjection View  -->
-        <ContentControl Grid.Row="1" r:ObservableRegion.RegionName="region://MainGridRegion" />
+        <!--<ContentControl Grid.Row="1" r:ObservableRegion.RegionName="region://MainGridRegion" />-->
         <!--  Named View  -->
         <Grid Grid.Row="1" r:ObservableRegion.RegionName="region://MainGridRegion">
-            <view:PageA r:ObservableRegion.ViewName="region://MainGridRegion/GridA" />
-            <view:PageB r:ObservableRegion.ViewName="region://MainGridRegion/GridB" />
+            <view:PageA r:ObservableRegion.RegionName="region://GridA" r:ObservableRegion.ViewName="region://MainGridRegion/GridA" />
+            <view:PageB r:ObservableRegion.RegionName="region://GridB" r:ObservableRegion.ViewName="region://MainGridRegion/GridB" />
         </Grid>
     </Grid>
 </Window>
