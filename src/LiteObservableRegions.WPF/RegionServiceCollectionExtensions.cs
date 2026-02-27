@@ -27,8 +27,11 @@ public static class RegionServiceCollectionExtensions
     /// </example>
     public static IServiceCollection AddRegionViews(this IServiceCollection services, Action<IRegionViewRegistry> configure)
     {
-        if (services == null) throw new ArgumentNullException(nameof(services));
-        if (configure == null) throw new ArgumentNullException(nameof(configure));
+        if (services == null)
+            throw new ArgumentNullException(nameof(services));
+
+        if (configure == null)
+            throw new ArgumentNullException(nameof(configure));
 
         RegionViewRegistry registry = new(services);
         configure(registry);

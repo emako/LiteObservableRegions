@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable IDE0057 // Substring can be simplified
+#pragma warning disable CA1846 // Prefer 'AsSpan' over 'Substring' when span-based overloads are available
+
 namespace LiteObservableRegions;
 
 /// <summary>
@@ -133,3 +137,7 @@ public static class RegionUriParser
         return new Uri(Scheme + "://" + regionName + path + query, UriKind.Absolute);
     }
 }
+
+#pragma warning restore CA1846 // Prefer 'AsSpan' over 'Substring' when span-based overloads are available
+#pragma warning restore IDE0057 // Substring can be simplified
+#pragma warning restore IDE0079 // Remove unnecessary suppression

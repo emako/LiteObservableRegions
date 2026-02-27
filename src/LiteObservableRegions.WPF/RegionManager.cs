@@ -43,10 +43,16 @@ public sealed class RegionManager(
     /// <exception cref="ArgumentException">host is not a DependencyObject.</exception>
     public void RegisterRegion(string regionName, object host)
     {
-        if (regionName == null) throw new ArgumentNullException(nameof(regionName));
+        if (regionName == null)
+            throw new ArgumentNullException(nameof(regionName));
+
         regionName = RegionUriParser.NormalizeRegionName(regionName);
-        if (string.IsNullOrEmpty(regionName)) throw new ArgumentException("Region name cannot be null or empty.", nameof(regionName));
-        if (host == null) throw new ArgumentNullException(nameof(host));
+
+        if (string.IsNullOrEmpty(regionName))
+            throw new ArgumentException("Region name cannot be null or empty.", nameof(regionName));
+
+        if (host == null)
+            throw new ArgumentNullException(nameof(host));
 
         if (host is not DependencyObject depObj)
             throw new ArgumentException("Region host must be a DependencyObject.", nameof(host));
@@ -96,7 +102,7 @@ public sealed class RegionManager(
 
         NavigationEntry current = state.CurrentEntry;
         NavigationEntry previous = state.BackStack.Peek();
-        RegionChangedEventArgs args = new RegionChangedEventArgs(
+        RegionChangedEventArgs args = new(
             regionName,
             current?.Uri,
             previous.Uri,
@@ -108,12 +114,13 @@ public sealed class RegionManager(
             return;
 
         state.BackStack.Pop();
-        state.ForwardStack.Push(new NavigationEntry(current.Uri, GetViewFromEntry(regionName, state, current), current.Context));
+        state.ForwardStack.Push(new NavigationEntry(current.Uri, GetViewFromEntry(regionName, current), current.Context));
         state.CurrentEntry = previous;
 
-        object currentView = GetViewFromEntry(regionName, state, current);
+        object currentView = GetViewFromEntry(regionName, current);
         InvokeNavigatedFrom(currentView, new NavigationContext(current.Context.FromUri, current.Context.ToUri, current.Context.Parameters, NavigationMode.GoBack, regionName, previous.Context.TargetName));
-        object previousView = GetViewFromEntry(regionName, state, previous);
+
+        object previousView = GetViewFromEntry(regionName, previous);
         _contentAdapter.SetContent(state.Host, previousView);
         InvokeNavigatedTo(previousView, previous.Context);
     }
@@ -129,24 +136,26 @@ public sealed class RegionManager(
 
         NavigationEntry current = state.CurrentEntry;
         NavigationEntry next = state.ForwardStack.Peek();
-        RegionChangedEventArgs args = new RegionChangedEventArgs(
+        RegionChangedEventArgs args = new(
             regionName,
             current?.Uri,
             next.Uri,
             current?.Context.TargetName ?? string.Empty,
             next.Context.TargetName,
             NavigationMode.GoForward);
+
         _onRegionChanging?.Invoke(args);
+
         if (args.Cancel)
             return;
 
         state.ForwardStack.Pop();
-        state.BackStack.Push(new NavigationEntry(current.Uri, GetViewFromEntry(regionName, state, current), current.Context));
+        state.BackStack.Push(new NavigationEntry(current.Uri, GetViewFromEntry(regionName, current), current.Context));
         state.CurrentEntry = next;
 
-        object currentView = GetViewFromEntry(regionName, state, current);
+        object currentView = GetViewFromEntry(regionName, current);
         InvokeNavigatedFrom(currentView, new NavigationContext(current.Context.FromUri, current.Context.ToUri, current.Context.Parameters, NavigationMode.GoForward, regionName, next.Context.TargetName));
-        object nextView = GetViewFromEntry(regionName, state, next);
+        object nextView = GetViewFromEntry(regionName, next);
         _contentAdapter.SetContent(state.Host, nextView);
         InvokeNavigatedTo(nextView, next.Context);
     }
@@ -156,7 +165,8 @@ public sealed class RegionManager(
     /// <returns>True if the region has at least one entry on the back stack.</returns>
     public bool CanGoBack(string regionName)
     {
-        return _regions.TryGetValue(regionName, out RegionState state) && state.BackStack.Count > 0;
+        return _regions.TryGetValue(regionName, out RegionState state)
+            && state.BackStack.Count > 0;
     }
 
     /// <inheritdoc />
@@ -164,7 +174,8 @@ public sealed class RegionManager(
     /// <returns>True if the region has at least one entry on the forward stack.</returns>
     public bool CanGoForward(string regionName)
     {
-        return _regions.TryGetValue(regionName, out RegionState state) && state.ForwardStack.Count > 0;
+        return _regions.TryGetValue(regionName, out RegionState state)
+            && state.ForwardStack.Count > 0;
     }
 
     /// <inheritdoc />
@@ -174,8 +185,10 @@ public sealed class RegionManager(
     {
         if (string.IsNullOrEmpty(regionName))
             return null;
-        if (!_regions.TryGetValue(regionName, out RegionState state))
+
+        if (!_regions.TryGetValue(regionName, out _))
             return null;
+
         return new RegionView(this, regionName);
     }
 
@@ -186,11 +199,19 @@ public sealed class RegionManager(
     /// <remarks>If the region is not registered, this method does nothing. Re-registering the same viewName overwrites the previous view.</remarks>
     public void RegisterNamedView(string regionName, string viewName, object view)
     {
-        if (regionName == null) throw new ArgumentNullException(nameof(regionName));
+        if (regionName == null)
+            throw new ArgumentNullException(nameof(regionName));
+
         regionName = RegionUriParser.NormalizeRegionName(regionName);
-        if (string.IsNullOrEmpty(regionName)) throw new ArgumentException("Region name cannot be null or empty.", nameof(regionName));
-        if (string.IsNullOrEmpty(viewName)) throw new ArgumentException("View name cannot be null or empty.", nameof(viewName));
-        if (view == null) throw new ArgumentNullException(nameof(view));
+
+        if (string.IsNullOrEmpty(regionName))
+            throw new ArgumentException("Region name cannot be null or empty.", nameof(regionName));
+
+        if (string.IsNullOrEmpty(viewName))
+            throw new ArgumentException("View name cannot be null or empty.", nameof(viewName));
+
+        if (view == null)
+            throw new ArgumentNullException(nameof(view));
 
         if (!_regions.TryGetValue(regionName, out RegionState state))
             return;
@@ -249,7 +270,7 @@ public sealed class RegionManager(
         object view = ResolveView(regionName, targetName) ?? throw new InvalidOperationException($"No view registered for target '{targetName}'.");
         if (state.CurrentEntry != null)
         {
-            object currentView = GetViewFromEntry(regionName, state, state.CurrentEntry);
+            object currentView = GetViewFromEntry(regionName, state.CurrentEntry);
             InvokeNavigatedFrom(currentView, context);
             if (pushBack)
                 state.BackStack.Push(state.CurrentEntry);
@@ -326,7 +347,7 @@ public sealed class RegionManager(
     /// <summary>
     /// Gets the view from an entry; if the weak reference has been collected, re-resolves from DI.
     /// </summary>
-    private object GetViewFromEntry(string regionName, RegionState state, NavigationEntry entry)
+    private object GetViewFromEntry(string regionName, NavigationEntry entry)
     {
         object view = entry.ViewRef.Target;
         if (view != null)

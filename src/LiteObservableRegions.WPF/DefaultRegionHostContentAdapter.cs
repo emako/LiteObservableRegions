@@ -6,7 +6,7 @@ namespace LiteObservableRegions;
 
 /// <summary>
 /// Default strategy for displaying the resolved view in a region host.
-/// ContentControl uses <see cref="System.Windows.Controls.ContentControl.Content"/>; Frame uses <see cref="System.Windows.Controls.Frame.Navigate(object)"/>;
+/// ContentControl uses <see cref="ContentControl.Content"/>; Frame uses <see cref="System.Windows.Controls.Frame.Navigate(object)"/>;
 /// Panel/ItemsControl add the child and optionally toggle visibility (see <see cref="IsPreferKeepAlive"/>); Decorator uses Child; other hosts use <see cref="ObservableRegion.CurrentContent"/>.
 /// </summary>
 public class DefaultRegionHostContentAdapter : IRegionHostContentAdapter
@@ -20,7 +20,7 @@ public class DefaultRegionHostContentAdapter : IRegionHostContentAdapter
     /// <inheritdoc />
     /// <param name="host">The region host (element with <see cref="ObservableRegion.RegionName"/>).</param>
     /// <param name="content">The view to display (typically a UIElement).</param>
-    public void SetContent(DependencyObject host, object content)
+    public virtual void SetContent(DependencyObject host, object content)
     {
         if (host is ContentControl cc)
         {

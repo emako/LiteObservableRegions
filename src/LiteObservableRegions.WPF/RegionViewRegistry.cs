@@ -8,23 +8,18 @@ namespace LiteObservableRegions;
 /// <summary>
 /// Internal implementation of <see cref="IRegionViewRegistry"/>. Registers view types in the service collection and keeps a list of entries for resolution.
 /// </summary>
-internal sealed class RegionViewRegistry : IRegionViewRegistry
+/// <remarks>
+/// Creates a registry that will add view types to the given service collection.
+/// </remarks>
+/// <param name="services">The service collection (must not be null).</param>
+internal sealed class RegionViewRegistry(IServiceCollection services) : IRegionViewRegistry
 {
-    private readonly IServiceCollection _services;
+    private readonly IServiceCollection _services = services ?? throw new ArgumentNullException(nameof(services));
 
     /// <inheritdoc />
     public IReadOnlyList<ViewRegistration> GetEntries() => _entries;
 
     private readonly List<ViewRegistration> _entries = [];
-
-    /// <summary>
-    /// Creates a registry that will add view types to the given service collection.
-    /// </summary>
-    /// <param name="services">The service collection (must not be null).</param>
-    public RegionViewRegistry(IServiceCollection services)
-    {
-        _services = services ?? throw new ArgumentNullException(nameof(services));
-    }
 
     /// <inheritdoc />
     /// <param name="targetName">The target name used in navigation.</param>
