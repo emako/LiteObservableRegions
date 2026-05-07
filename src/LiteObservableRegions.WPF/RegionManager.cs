@@ -98,6 +98,10 @@ public sealed class RegionManager(
     /// <param name="regionName">The region name (case-insensitive).</param>
     public void GoBack(string regionName)
     {
+        if (string.IsNullOrEmpty(regionName))
+            return;
+        regionName = RegionUriParser.NormalizeRegionName(regionName);
+
         if (!_regions.TryGetValue(regionName, out RegionState state))
             return;
         if (state.BackStack.Count == 0)
@@ -132,6 +136,10 @@ public sealed class RegionManager(
     /// <param name="regionName">The region name (case-insensitive).</param>
     public void GoForward(string regionName)
     {
+        if (string.IsNullOrEmpty(regionName))
+            return;
+        regionName = RegionUriParser.NormalizeRegionName(regionName);
+
         if (!_regions.TryGetValue(regionName, out RegionState state))
             return;
         if (state.ForwardStack.Count == 0)
@@ -168,6 +176,10 @@ public sealed class RegionManager(
     /// <returns>True if the region has at least one entry on the back stack.</returns>
     public bool CanGoBack(string regionName)
     {
+        if (string.IsNullOrEmpty(regionName))
+            return false;
+        regionName = RegionUriParser.NormalizeRegionName(regionName);
+
         return _regions.TryGetValue(regionName, out RegionState state)
             && state.BackStack.Count > 0;
     }
@@ -177,6 +189,10 @@ public sealed class RegionManager(
     /// <returns>True if the region has at least one entry on the forward stack.</returns>
     public bool CanGoForward(string regionName)
     {
+        if (string.IsNullOrEmpty(regionName))
+            return false;
+        regionName = RegionUriParser.NormalizeRegionName(regionName);
+
         return _regions.TryGetValue(regionName, out RegionState state)
             && state.ForwardStack.Count > 0;
     }
@@ -188,6 +204,8 @@ public sealed class RegionManager(
     {
         if (string.IsNullOrEmpty(regionName))
             return null;
+
+        regionName = RegionUriParser.NormalizeRegionName(regionName);
 
         if (!_regions.TryGetValue(regionName, out _))
             return null;
@@ -306,6 +324,11 @@ public sealed class RegionManager(
     /// <inheritdoc />
     public object ResolveView(string regionName, string targetName)
     {
+        if (string.IsNullOrEmpty(regionName))
+            return null;
+
+        regionName = RegionUriParser.NormalizeRegionName(regionName);
+
         if (_regions.TryGetValue(regionName, out RegionState state) &&
             state.NamedViews.TryGetValue(targetName, out WeakReference wr))
         {
