@@ -44,4 +44,19 @@ public interface IRegionNavigation
     /// <param name="regionName">The region name (case-insensitive).</param>
     /// <returns>True if the region has at least one entry on the forward stack.</returns>
     public bool CanGoForward(string regionName);
+
+    /// <summary>
+    /// Queries whether navigation to the given URI is currently permitted by raising
+    /// <see cref="RegionEventNotifier.ObservableRegionCanGo"/>. Returns <c>false</c> if any subscriber
+    /// sets <see cref="RegionCanGoEventArgs.CanGo"/> to <c>false</c>; otherwise <c>true</c>.
+    /// </summary>
+    /// <remarks>
+    /// This method is a pure query and does <b>not</b> affect actual navigation.
+    /// Navigate, Redirect, GoBack, and GoForward always execute whether or not you call this first.
+    /// Call it when you want to give subscribers (e.g. unsaved-changes guards) a chance to veto
+    /// before you decide to navigate.
+    /// </remarks>
+    /// <param name="uri">The target region URI to check (e.g. <c>region://MainRegion/ViewA</c>).</param>
+    /// <returns><c>true</c> if no subscriber vetoed the navigation; <c>false</c> if at least one did.</returns>
+    public bool CanGo(Uri uri);
 }

@@ -54,13 +54,19 @@ public static class RegionServiceCollectionExtensions
             sp,
             sp.GetRequiredService<IRegionViewRegistry>(),
             sp.GetService<IRegionHostContentAdapter>(),
-            onRegionChanging: RegionChangedHubCallback));
+            onRegionChanging: RegionChangedHubCallback,
+            onCanGo: CanGoHubCallback));
         return services;
     }
 
     private static void RegionChangedHubCallback(RegionChangedEventArgs e)
     {
         WeakReferenceRegionHub.EventNotifier.RaiseRegionChanged(e);
+    }
+
+    private static bool CanGoHubCallback(Uri uri)
+    {
+        return WeakReferenceRegionHub.EventNotifier.RaiseCanGo(uri);
     }
 }
 

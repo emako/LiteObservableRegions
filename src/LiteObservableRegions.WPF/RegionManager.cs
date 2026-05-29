@@ -18,11 +18,13 @@ namespace LiteObservableRegions;
 /// <param name="registry">The view registry (target name to type and lifetime).</param>
 /// <param name="contentAdapter">Optional. How to display content in the host; defaults to <see cref="DefaultRegionHostContentAdapter"/>.</param>
 /// <param name="onRegionChanging">Optional. Invoked before each navigation (Navigate, Redirect, GoBack, GoForward); used to raise <see cref="RegionEventNotifier.ObservableRegionChanged"/> and allow cancellation.</param>
+/// <param name="onCanGo">Optional. Invoked by <see cref="CanGo"/> to query subscribers; should raise <see cref="RegionEventNotifier.ObservableRegionCanGo"/> and return the aggregate result.</param>
 public sealed class RegionManager(
     IServiceProvider rootProvider,
     IRegionViewRegistry registry,
     IRegionHostContentAdapter contentAdapter = null,
-    Action<RegionChangedEventArgs> onRegionChanging = null) : IRegionManager
+    Action<RegionChangedEventArgs> onRegionChanging = null,
+    Func<Uri, bool> onCanGo = null) : IRegionManager
 {
     private readonly IServiceProvider _rootProvider = rootProvider ?? throw new ArgumentNullException(nameof(rootProvider));
     private readonly IRegionViewRegistry _registry = registry ?? throw new ArgumentNullException(nameof(registry));
@@ -31,6 +33,7 @@ public sealed class RegionManager(
 
     private readonly IRegionHostContentAdapter _contentAdapter = contentAdapter ?? new DefaultRegionHostContentAdapter();
     private readonly Action<RegionChangedEventArgs> _onRegionChanging = onRegionChanging;
+    private readonly Func<Uri, bool> _onCanGo = onCanGo;
 
     /// <summary>
     /// All registered regions (region name -> state). Use for direct access to host, stacks, named views, scope.
@@ -195,6 +198,15 @@ public sealed class RegionManager(
 
         return _regions.TryGetValue(regionName, out RegionState state)
             && state.ForwardStack.Count > 0;
+    }
+
+    /// <inheritdoc />
+    public bool CanGo(Uri uri)
+    {
+        if (uri == null)
+            throw new ArgumentNullException(nameof(uri));
+
+        return _onCanGo == null || _onCanGo(uri);
     }
 
     /// <inheritdoc />

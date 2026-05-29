@@ -17,6 +17,7 @@ A lightweight, Prism-like region and navigation library for WPF. Define regions 
 - **Pluggable host adapter** — `IRegionHostContentAdapter.SetContent(host, content)`. Register before `AddObservableRegions` to customize. Default: ContentControl→Content, Frame→Navigate(content), Panel/ItemsControl→add child and toggle visibility when `IsPreferKeepAlive` is true, else clear then add; Decorator→Child; other hosts→`ObservableRegion.CurrentContent`.
 - **Region context** — `ObservableRegion.RegionContext` attached property for arbitrary data; no change notifications.
 - **Region change notification** — Subscribe to `WeakReferenceRegionHub.EventNotifier.ObservableRegionChanged`; raised **before** content changes (before OnNavigatedFrom/OnNavigatedTo). Args: RegionName, FromUri, ToUri, FromTargetName, ToTargetName, `NavigationMode` (Navigate, Redirect, GoBack, GoForward), and `Cancel` to abort the navigation.
+- **Navigation guard (`CanGo`)** — Call `manager.CanGo(uri)` to raise `WeakReferenceRegionHub.EventNotifier.ObservableRegionCanGo` and ask subscribers whether navigation is permitted. Returns `false` if any subscriber sets `e.CanGo = false`. This is a pure query — it does **not** block Navigate/Redirect/GoBack/GoForward. Use it when you want to guard navigation (e.g. unsaved changes) before deciding whether to call a navigation method.
 - **Lifetime** — Region host: when a `FrameworkElement` with `RegionName` **implements <see cref="IRegionScope"/>**, Unloaded unregisters the region and disposes its scope; otherwise the region is not removed on Unloaded (avoids “region not found” when the host is in a tab or lazy-loaded). Named view: when a `FrameworkElement` with `ViewName` implements `IRegionScope`, Unloaded removes that named view; otherwise it is not removed.
 
 ## Installation
@@ -105,6 +106,28 @@ WeakReferenceRegionHub.EventNotifier.ObservableRegionChanged += (sender, e) =>
 
 `e.Mode` is `NavigationMode`: `Navigate`, `Redirect`, `GoBack`, `GoForward`.
 
+### 5. Navigation guard (CanGo)
+
+`manager.CanGo(uri)` raises `WeakReferenceRegionHub.EventNotifier.ObservableRegionCanGo`. It is a **pure query** — it does not perform any navigation or alter navigation stacks. Call it before Navigate/Redirect when you need to give subscribers a veto (e.g. prevent leaving a page with unsaved edits).
+
+```csharp
+// Subscribe once (e.g. in startup or in the view/viewmodel)
+WeakReferenceRegionHub.EventNotifier.ObservableRegionCanGo += (sender, e) =>
+{
+    // e.Uri — target URI being queried
+    if (hasUnsavedChanges)
+        e.CanGo = false;   // veto: return false from CanGo()
+};
+
+// Then, before navigating:
+Uri target = new Uri("region://MainRegion/ViewB");
+if (manager.CanGo(target))
+    manager.Navigate(target);
+// or just call Navigate(target) directly if you don't need the guard
+```
+
+If no subscribers are registered, `CanGo` returns `true`. Once any subscriber sets `e.CanGo = false`, the result is `false` regardless of other subscribers.
+
 ## Region URIs
 
 - **Format:** `region://RegionName/TargetName?param1=value1&param2=value2`
@@ -159,7 +182,7 @@ Implement `IRegionHostContentAdapter` (single method: `SetContent(DependencyObje
 
 ## API overview
 
-- **LiteObservableRegions:** `WeakReferenceRegionHub` (ServiceProvider, RegionManager, EventNotifier, Clear), `ObservableRegion`, `RegionUriParser`, `RegionChangedEventArgs`, `NavigationMode`, `NavigationContext`, `DefaultRegionHostContentAdapter`, `RegionServiceCollectionExtensions` (AddRegionViews, AddObservableRegions), `RegionManager`, `RegionState`, `ViewRegistration`, `NavigationEntry`.
+- **LiteObservableRegions:** `WeakReferenceRegionHub` (ServiceProvider, RegionManager, EventNotifier, Clear), `ObservableRegion`, `RegionUriParser`, `RegionChangedEventArgs`, `RegionCanGoEventArgs`, `NavigationMode`, `NavigationContext`, `DefaultRegionHostContentAdapter`, `RegionServiceCollectionExtensions` (AddRegionViews, AddObservableRegions), `RegionManager`, `RegionState`, `ViewRegistration`, `NavigationEntry`.
 - **LiteObservableRegions.Abstractions:** `IRegionManager`, `IRegionNavigation`, `IRegion`, `IRegionViewRegistry`, `IRegionHostContentAdapter`, `INavigationAware`, `IRegionScope`.
 
 ## License
